@@ -3,10 +3,12 @@
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
+#include <QThread>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+	QThread::currentThread()->setObjectName("Main Thread");
 
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();
@@ -17,6 +19,7 @@ int main(int argc, char *argv[])
             break;
         }
     }
+
     MainWindow w;
     w.show();
     return a.exec();

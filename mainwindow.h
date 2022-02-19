@@ -15,8 +15,8 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-private slots:
-    void on_FileChooseBtn_clicked();
+private slots:	
+	void on_FileChooseBtn_clicked();
 
 private:
     Ui::MainWindow *ui;

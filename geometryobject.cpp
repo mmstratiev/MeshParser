@@ -33,7 +33,16 @@ QJsonArray CGeometryObject::GetTriangles() const
         result = verticesIt.value().toArray();
     }
 
-    return result;
+	return result;
+}
+
+void CGeometryObject::GetStats(std::function<void(const SMeshStats &)> funcCallback)
+{
+	SMeshStats result;
+
+	// multithreaded logic
+
+	funcCallback(result);
 }
 
 QJsonObject CGeometryObject::GetInnerObject() const
