@@ -94,7 +94,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_4">
+          <widget class="QLabel" name="MinTriAreaLabel">
            <property name="text">
             <string>N/A</string>
            </property>
@@ -112,7 +112,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_5">
+          <widget class="QLabel" name="MaxTriAreaLabel">
            <property name="text">
             <string>N/A</string>
            </property>
@@ -142,7 +142,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_7">
+          <widget class="QLabel" name="AvgTriAreaLabel">
            <property name="text">
             <string>N/A</string>
            </property>

@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "geometryobject.h"
 
 #include <QDebug>
 #include <QFileDialog>
@@ -37,7 +36,16 @@ void MainWindow::on_FileChooseBtn_clicked()
 			QByteArray meshJsonStr = meshFile.readAll();
 			QJsonDocument meshJson = QJsonDocument::fromJson(meshJsonStr);
 
-			CGeometryObject object(meshJson.toJson());
+			ui->MinTriAreaLabel->setText("Calculating...");
+			ui->MaxTriAreaLabel->setText("Calculating...");
+			ui->AvgTriAreaLabel->setText("Calculating...");
+
+			GeometryObject.Init(meshJson.toJson());
+			GeometryObject.GetStats([&](const SMeshStats& result) {
+				ui->MinTriAreaLabel->setText(QString::number(result.MinTriangleArea));
+				ui->MaxTriAreaLabel->setText(QString::number(result.MaxTriangleArea));
+				ui->AvgTriAreaLabel->setText(QString::number(result.GetAvgTriangleArea()));
+			} );
 
 			ui->FileNameLabel->setText(fileInfo.fileName());
 		}

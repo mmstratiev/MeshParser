@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "GeometryObject.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -20,5 +21,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+
+	CGeometryObject GeometryObject;
 };
 #endif // MAINWINDOW_H
