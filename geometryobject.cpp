@@ -10,18 +10,26 @@
 CGeometryObject::CGeometryObject()
 {}
 
-CGeometryObject::CGeometryObject(const QByteArray& jsonByteArr)
+void CGeometryObject::Init(const QByteArray &jsonByteArr, TPromise callback)
 {
-	this->Init(jsonByteArr);
+	connect(this, &CGeometryObject::OnRecalculated, callback);
+
+	Object		= QJsonDocument::fromJson(jsonByteArr).object();
+	MeshStats	= SMeshStats();
+
+	this->Recalculate();
 }
 
-void CGeometryObject::Init(const QByteArray &jsonByteArr)
+void CGeometryObject::Wait(TPromise callback)
 {
-	bDirty = true;
-	Object = QJsonDocument::fromJson(jsonByteArr).object();
-
-	MeshStats = SMeshStats();
-	MeshStats.TrianglesCount = this->GetTrianglesCount();
+	if(bRecalculating)
+	{
+		connect(this, &CGeometryObject::OnRecalculated, callback);
+	}
+	else
+	{
+		callback();
+	}
 }
 
 qsizetype CGeometryObject::GetVerticesCount() const
@@ -60,53 +68,48 @@ STriangle CGeometryObject::GetTriangle(qsizetype triangleIndex) const
 	return result;
 }
 
-void CGeometryObject::GetStats(TGetStatsCallback funcCallback)
+SMeshStats CGeometryObject::GetStats() const
 {
-	if(bDirty)
+	return this->MeshStats;
+}
+
+void CGeometryObject::Recalculate()
+{
+	bRecalculating = true;
+
+	MeshStats.TrianglesCount = this->GetTrianglesCount();
+
+	// We want to use ALL available threads
+	int maxThreadCount	= QThreadPool::globalInstance()->maxThreadCount();
+
+	qsizetype trianglesCount		= this->GetTrianglesCount();
+	qsizetype trianglesPerThread	= trianglesCount / maxThreadCount;
+	qsizetype remainder				= trianglesCount % maxThreadCount;
+
+	qsizetype lastEndIndex			= 0;
+
+	for(int i = 0; i < maxThreadCount; i++)
 	{
-		bAnalyzing = true;
-
-		// We want to use ALL available threads
-		int maxThreadCount	= QThreadPool::globalInstance()->maxThreadCount();
-
-		qsizetype trianglesCount		= this->GetTrianglesCount();
-		qsizetype trianglesPerThread	= trianglesCount / maxThreadCount;
-		qsizetype remainder				= trianglesCount % maxThreadCount;
-
-		qsizetype lastEndIndex			= 0;
-
-		for(int i = 0; i < maxThreadCount; i++)
+		// remainder can never be more than the divisor(num of threads), so this is a safe and efficent way to distribute triangles
+		qsizetype trianglesForThread = trianglesPerThread;
+		if(remainder > 0)
 		{
-			// remainder can never be more than the divisor(num of threads), so this is a safe and very efficent way to distribute triangles
-			qsizetype trianglesForThread = trianglesPerThread;
-			if(remainder > 0)
-			{
-				trianglesForThread++;
-				remainder--;
-			}
-
-			qsizetype beginIndex	= lastEndIndex;
-			qsizetype endIndex		= beginIndex + trianglesForThread;
-			lastEndIndex			= endIndex;
-
-			CMeshAnalyzer *worker = new CMeshAnalyzer(*this, beginIndex, endIndex);
-			worker->SetMutex(&Mutex);
-			worker->SetOutput(&MeshStats);
-			worker->SetCallback(funcCallback);
-
-			worker->setObjectName("StatsWorker_" + QString::number(i));
-			worker->setAutoDelete(true);
-
-			Workers.insert(worker);
-
-			connect(worker, &CMeshAnalyzer::Finished, this, &CGeometryObject::MeshAnalyzerFinished, Qt::QueuedConnection);
-
-			QThreadPool::globalInstance()->start(worker);
+			trianglesForThread++;
+			remainder--;
 		}
-	}
-	else
-	{
-		funcCallback(MeshStats);
+
+		qsizetype beginIndex	= lastEndIndex;
+		qsizetype endIndex		= beginIndex + trianglesForThread;
+		lastEndIndex			= endIndex;
+
+		CMeshAnalyzer *worker = new CMeshAnalyzer(*this, beginIndex, endIndex);
+		worker->setObjectName("StatsWorker_" + QString::number(i));
+		worker->setAutoDelete(true);
+
+		AnalyzeWorkers.insert(worker);
+		connect(worker, &CMeshAnalyzer::Finished, this, &CGeometryObject::MeshAnalyzerFinished, Qt::QueuedConnection);
+
+		QThreadPool::globalInstance()->start(worker);
 	}
 }
 
@@ -151,14 +154,14 @@ QJsonArray CGeometryObject::GetTrianglesRaw() const
 	return result;
 }
 
-void CGeometryObject::MeshAnalyzerFinished(TGetStatsCallback funcCallback)
+void CGeometryObject::MeshAnalyzerFinished()
 {
-	Workers.remove(sender());
+	AnalyzeWorkers.remove(sender());
 
 	// Call callback only when all workers are done
-	if(Workers.isEmpty())
+	if(AnalyzeWorkers.isEmpty())
 	{
-		bAnalyzing = false;
-		funcCallback(MeshStats);
+		bRecalculating = false;
+		emit OnRecalculated();
 	}
 }

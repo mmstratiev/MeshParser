@@ -74,21 +74,24 @@ struct STriangle
 					*(semiP-this->GetSideC().GetLength()));
 	}
 
-	bool IsDegenerate()
+	bool IsDegenerate() const
 	{
 		return qFuzzyIsNull(this->GetArea());
 	}
 };
 
-using TGetStatsCallback = std::function<void(const SMeshStats &)>;
-
+using TPromise = std::function<void()>;
 class CGeometryObject : public QObject
 {
+	Q_OBJECT
+	friend class CMeshAnalyzer;
+
 public:
 	CGeometryObject();
-	CGeometryObject(const QByteArray& jsonByteArr);
 
-	void Init(const QByteArray& jsonByteArr);
+	// Async methods
+	void Init(const QByteArray& jsonByteArr, TPromise callback);
+	void Wait(TPromise callback);
 
 	qsizetype	GetVerticesCount() const;
 	QVector3D	GetVertex(qsizetype vertexIndex) const;
@@ -96,30 +99,30 @@ public:
 	qsizetype	GetTrianglesCount() const;
 	STriangle	GetTriangle(qsizetype triangleIndex) const;
 
-	// Multithreaded methods, amortized complexity
-	void		GetStats(TGetStatsCallback funcCallback);
+	SMeshStats	GetStats() const;
+
+signals:
+	void		OnRecalculated();
 
 private:
+	void		Recalculate();
+
 	QJsonObject GetInnerObject() const;
 
 	QJsonArray	GetVerticesRaw() const;
 	QJsonArray	GetTrianglesRaw() const;
 
 public slots:
-	void		MeshAnalyzerFinished(TGetStatsCallback funcCallback);
+	void		MeshAnalyzerFinished();
 
 private:
-	bool		bDirty		= true;
-	bool		bAnalyzing	= false;
-
+	bool		bRecalculating = false;
     QJsonObject Object;
 	SMeshStats	MeshStats;
 
-	QMutex		Mutex;
-	QHash<qsizetype, QSet<qsizetype>> AdjacencyMap;
-
-	QSet<class QObject*> Workers;
-
+	QMutex								Mutex;
+	QHash<qsizetype, QSet<qsizetype>>	AdjacencyMap;
+	QSet<class QObject*>				AnalyzeWorkers;
 };
 
 #endif // GEOMETRYOBJECT_H

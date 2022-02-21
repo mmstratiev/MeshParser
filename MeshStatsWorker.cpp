@@ -4,9 +4,9 @@
 #include <QMutexLocker>
 #include <QDebug>
 
-CMeshAnalyzer::CMeshAnalyzer(const CGeometryObject& geometryObject, qsizetype beginIndex, qsizetype endIndex, QObject *parent)
+CMeshAnalyzer::CMeshAnalyzer(CGeometryObject& inOutObject, qsizetype beginIndex, qsizetype endIndex, QObject *parent)
 	: QObject{parent}
-	, GeometryObject(geometryObject)
+	, GeometryObject(inOutObject)
 	, BeginIndex(beginIndex)
 	, EndIndex(endIndex)
 {
@@ -19,28 +19,11 @@ CMeshAnalyzer::~CMeshAnalyzer()
 
 }
 
-void CMeshAnalyzer::SetMutex(QMutex *mutex)
-{
-	Mutex = mutex;
-}
-
-void CMeshAnalyzer::SetOutput(SMeshStats *output)
-{
-	Output = output;
-}
-
-void CMeshAnalyzer::SetCallback(TGetStatsCallback funcCallback)
-{
-	Callback = funcCallback;
-}
-
 void CMeshAnalyzer::Work()
 {
-	if(!Output) return;
-
 	for(int triangleIndex = BeginIndex; triangleIndex < EndIndex; triangleIndex++)
 	{
-		QMutexLocker locker(Mutex);
+		QMutexLocker locker(&GeometryObject.Mutex);
 
 		STriangle triangle = GeometryObject.GetTriangle(triangleIndex);
 		double triangleArea = triangle.GetArea();
@@ -52,9 +35,9 @@ void CMeshAnalyzer::Work()
 			qInfo() << "Area " + QString::number(triangleIndex) + ": " + QString::number(triangleArea);
 		}
 
-		Output->MaxTriangleArea = std::max<double>(Output->MaxTriangleArea, triangleArea);
-		Output->MinTriangleArea = std::min<double>(Output->MinTriangleArea, triangleArea);
-		Output->Area += triangleArea;
+		GeometryObject.MeshStats.MaxTriangleArea = std::max<double>(GeometryObject.MeshStats.MaxTriangleArea, triangleArea);
+		GeometryObject.MeshStats.MinTriangleArea = std::min<double>(GeometryObject.MeshStats.MinTriangleArea, triangleArea);
+		GeometryObject.MeshStats.Area			+= triangleArea;
 
 	//	qInfo() << "Work" << this << QThread::currentThread();
 	}
@@ -68,7 +51,7 @@ void CMeshAnalyzer::run()
 	this->Work();
 
 	qInfo() << "Finishing" << this << QThread::currentThread();
-	emit Finished(Callback);
+	emit Finished();
 
 	// todo: remove auto deletion and this sleep
 	QThread::currentThread()->msleep(100);

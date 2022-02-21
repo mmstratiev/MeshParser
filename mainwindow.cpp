@@ -40,12 +40,12 @@ void MainWindow::on_FileChooseBtn_clicked()
 			ui->MaxTriAreaLabel->setText("Calculating...");
 			ui->AvgTriAreaLabel->setText("Calculating...");
 
-			GeometryObject.Init(meshJson.toJson());
-			GeometryObject.GetStats([&](const SMeshStats& result) {
-				ui->MinTriAreaLabel->setText(QString::number(result.MinTriangleArea));
-				ui->MaxTriAreaLabel->setText(QString::number(result.MaxTriangleArea));
-				ui->AvgTriAreaLabel->setText(QString::number(result.GetAvgTriangleArea()));
-			} );
+			GeometryObject.Init(meshJson.toJson(), [&] (){
+				SMeshStats meshStats = GeometryObject.GetStats();
+				ui->MinTriAreaLabel->setText(QString::number(meshStats.MinTriangleArea));
+				ui->MaxTriAreaLabel->setText(QString::number(meshStats.MaxTriangleArea));
+				ui->AvgTriAreaLabel->setText(QString::number(meshStats.GetAvgTriangleArea()));
+			});
 
 			ui->FileNameLabel->setText(fileInfo.fileName());
 		}
