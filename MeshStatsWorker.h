@@ -6,12 +6,12 @@
 
 #include "GeometryObject.h"
 
-class MeshStatsWorker : public QObject, public QRunnable
+class CMeshAnalyzer : public QObject, public QRunnable
 {
     Q_OBJECT
 public:
-	explicit MeshStatsWorker(const CGeometryObject& geometryObject, qsizetype beginIndex, qsizetype endIndex, QObject *parent = nullptr);
-	~MeshStatsWorker();
+	explicit CMeshAnalyzer(const CGeometryObject& geometryObject, qsizetype beginIndex, qsizetype endIndex, QObject *parent = nullptr);
+	~CMeshAnalyzer();
 
 	void SetMutex(QMutex* mutex);
 	void SetOutput(SMeshStats* output);

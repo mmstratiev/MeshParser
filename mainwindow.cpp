@@ -52,3 +52,9 @@ void MainWindow::on_FileChooseBtn_clicked()
 	}
 }
 
+
+void MainWindow::on_ViewNormalsBtn_clicked()
+{
+
+}
+

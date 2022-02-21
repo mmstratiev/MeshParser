@@ -18,6 +18,7 @@ public:
 
 private slots:	
 	void on_FileChooseBtn_clicked();
+	void on_ViewNormalsBtn_clicked();
 
 private:
     Ui::MainWindow *ui;

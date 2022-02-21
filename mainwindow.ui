@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>293</width>
+    <height>481</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,22 +16,9 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <spacer name="verticalSpacer">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>40</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item>
      <widget class="QGroupBox" name="fileGroupBox">
       <property name="title">
-       <string>File</string>
+       <string>File:</string>
       </property>
       <property name="checkable">
        <bool>false</bool>
@@ -57,15 +44,28 @@
          </property>
         </widget>
        </item>
+       <item>
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
       </layout>
      </widget>
     </item>
     <item>
      <widget class="QGroupBox" name="MeshStatsGroupBox">
       <property name="title">
-       <string>Mesh statistics</string>
+       <string>Mesh statistics:</string>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0,0">
+      <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0">
        <property name="spacing">
         <number>6</number>
        </property>
@@ -82,73 +82,239 @@
         <number>9</number>
        </property>
        <item>
+        <widget class="QPushButton" name="ViewNormalsBtn">
+         <property name="text">
+          <string>View vertex normals</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_11">
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_7">
+           <item>
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Mesh type:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>Biggest triangle area:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_8">
+             <property name="autoFillBackground">
+              <bool>false</bool>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
+             </property>
+             <property name="text">
+              <string>Average triangle area:</string>
+             </property>
+             <property name="wordWrap">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>Smallest triangle area:</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_6">
+           <item>
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>N/A</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="MaxTriAreaLabel">
+             <property name="text">
+              <string>N/A</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="AvgTriAreaLabel">
+             <property name="text">
+              <string>N/A</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="MinTriAreaLabel">
+             <property name="text">
+              <string>N/A</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="groupBox">
+      <property name="title">
+       <string>Mesh operations:</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <property name="sizeConstraint">
-          <enum>QLayout::SetDefaultConstraint</enum>
-         </property>
          <item>
-          <widget class="QLabel" name="label_3">
+          <widget class="QLabel" name="label_10">
            <property name="text">
-            <string>Smallest triangle area:</string>
+            <string>Subdivision steps:</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="MinTriAreaLabel">
-           <property name="text">
-            <string>N/A</string>
-           </property>
-          </widget>
+          <widget class="QSpinBox" name="spinBox"/>
          </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
-          <widget class="QLabel" name="label_6">
+          <widget class="QPushButton" name="pushButton">
            <property name="text">
-            <string>Biggest triangle area:</string>
+            <string>Subdivide</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="MaxTriAreaLabel">
-           <property name="text">
-            <string>N/A</string>
+          <spacer name="horizontalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
            </property>
-          </widget>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
          </item>
         </layout>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
-         <property name="sizeConstraint">
-          <enum>QLayout::SetDefaultConstraint</enum>
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string>Is point in mesh?</string>
          </property>
-         <item>
-          <widget class="QLabel" name="label_8">
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="text">
-            <string>Average triangle area:</string>
-           </property>
-           <property name="wordWrap">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="AvgTriAreaLabel">
-           <property name="text">
-            <string>N/A</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_7">
+              <item>
+               <widget class="QLabel" name="label_4">
+                <property name="text">
+                 <string>X</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="doubleSpinBox"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_9">
+              <item>
+               <widget class="QLabel" name="label_7">
+                <property name="text">
+                 <string>Y</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="doubleSpinBox_2"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_8">
+              <item>
+               <widget class="QLabel" name="label_5">
+                <property name="text">
+                 <string>Z</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="doubleSpinBox_3"/>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_3">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_10">
+            <item>
+             <widget class="QLabel" name="label_9">
+              <property name="styleSheet">
+               <string notr="true">color: rgb(255, 0, 0);</string>
+              </property>
+              <property name="text">
+               <string>The point is not inside the mesh.</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -173,7 +339,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>293</width>
      <height>21</height>
     </rect>
    </property>

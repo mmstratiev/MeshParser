@@ -4,7 +4,7 @@
 #include <QMutexLocker>
 #include <QDebug>
 
-MeshStatsWorker::MeshStatsWorker(const CGeometryObject& geometryObject, qsizetype beginIndex, qsizetype endIndex, QObject *parent)
+CMeshAnalyzer::CMeshAnalyzer(const CGeometryObject& geometryObject, qsizetype beginIndex, qsizetype endIndex, QObject *parent)
 	: QObject{parent}
 	, GeometryObject(geometryObject)
 	, BeginIndex(beginIndex)
@@ -13,28 +13,28 @@ MeshStatsWorker::MeshStatsWorker(const CGeometryObject& geometryObject, qsizetyp
 	qInfo() << "Created" << this << QThread::currentThread();
 }
 
-MeshStatsWorker::~MeshStatsWorker()
+CMeshAnalyzer::~CMeshAnalyzer()
 {
 	qInfo() << "Destroyed" << this << QThread::currentThread();
 
 }
 
-void MeshStatsWorker::SetMutex(QMutex *mutex)
+void CMeshAnalyzer::SetMutex(QMutex *mutex)
 {
 	Mutex = mutex;
 }
 
-void MeshStatsWorker::SetOutput(SMeshStats *output)
+void CMeshAnalyzer::SetOutput(SMeshStats *output)
 {
 	Output = output;
 }
 
-void MeshStatsWorker::SetCallback(TGetStatsCallback funcCallback)
+void CMeshAnalyzer::SetCallback(TGetStatsCallback funcCallback)
 {
 	Callback = funcCallback;
 }
 
-void MeshStatsWorker::Work()
+void CMeshAnalyzer::Work()
 {
 	if(!Output) return;
 
@@ -45,21 +45,22 @@ void MeshStatsWorker::Work()
 		STriangle triangle = GeometryObject.GetTriangle(triangleIndex);
 		double triangleArea = triangle.GetArea();
 
-		if(qFuzzyCompare(triangleArea, 0))
+		if(triangle.IsDegenerate())
 		{
 			// TODO: Warn the user of degeneracy and ignore in calculations
 			qInfo() << "Triangle " << triangleIndex << ": " << triangle.Vertices[0] << ", " << triangle.Vertices[1] << ", " << triangle.Vertices[2];
 			qInfo() << "Area " + QString::number(triangleIndex) + ": " + QString::number(triangleArea);
 		}
+
 		Output->MaxTriangleArea = std::max<double>(Output->MaxTriangleArea, triangleArea);
 		Output->MinTriangleArea = std::min<double>(Output->MinTriangleArea, triangleArea);
-		Output->SumTriangleArea += triangleArea;
+		Output->Area += triangleArea;
 
 	//	qInfo() << "Work" << this << QThread::currentThread();
 	}
 }
 
-void MeshStatsWorker::run()
+void CMeshAnalyzer::run()
 {
 	// Starting the thread
 	qInfo() << "Starting" << this << QThread::currentThread();
