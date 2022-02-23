@@ -70,3 +70,106 @@ TDCEL_FacePtr CDCEL::AddFace(TDCEL_FaceID ID, TDCEL_EdgePtr halfEdge)
 	result->Edge		= halfEdge;
 	return result;
 }
+
+qsizetype CDCEL::GetEdgesCount() const
+{
+	return Edges.size();
+}
+
+TDCEL_EdgePtr CDCEL::GetEdge(TDCEL_EdgeID Id) const
+{
+	TDCEL_EdgePtr result = nullptr;
+
+	auto edgeIt = Edges.find(Id);
+	if(edgeIt != Edges.end())
+	{
+		result = edgeIt->second.get();
+	}
+
+	return result;
+}
+
+qsizetype CDCEL::GetVerticesCount() const
+{
+	return Vertices.size();
+}
+
+TDCEL_VertPtr CDCEL::GetVertex(TDCEL_VertID Id) const
+{
+	TDCEL_VertPtr result = nullptr;
+
+	auto vertIt = Vertices.find(Id);
+	if(vertIt != Vertices.end())
+	{
+		result = vertIt->second.get();
+	}
+
+	return result;
+}
+
+QVector3D CDCEL::GetVertexNormal(TDCEL_VertID Id) const
+{
+	QVector3D result;
+	TDCEL_VertPtr vertex = this->GetVertex(Id);
+	if(!vertex) return result;
+
+	auto iterateAdjacentTris = [&] (TDCEL_EdgePtr start, bool clockwiseTraversal) -> bool
+	{
+		TDCEL_EdgePtr currentEdge = vertex->Edge;
+		do
+		{
+			if(currentEdge->Origin == vertex)
+			{
+				STriangle triangle = currentEdge->Face->Get();
+				if(triangle.IsDegenerate())
+				{
+					return false;
+				}
+				result += triangle.GetNormal();
+
+				// go back to triangle on the left
+				if(!clockwiseTraversal)
+				{
+					currentEdge = currentEdge->Prev;
+				}
+				currentEdge = currentEdge->Twin;
+
+				if(!currentEdge) // non-manifold/open mesh
+				{
+					return false;
+				}
+			}
+			else
+			{
+				currentEdge = currentEdge->Next;
+			}
+		} while(currentEdge != start);
+
+		return true;
+	};
+
+	if(!iterateAdjacentTris(vertex->Edge, true))
+	{
+		iterateAdjacentTris(vertex->Edge, false);
+	}
+
+	return result.normalized();
+}
+
+qsizetype CDCEL::GetFacesCount() const
+{
+	return Faces.size();
+}
+
+TDCEL_FacePtr CDCEL::GetFace(TDCEL_FaceID Id) const
+{
+	TDCEL_FacePtr result = nullptr;
+
+	auto faceIt = Faces.find(Id);
+	if(faceIt != Faces.end())
+	{
+		result = faceIt->second.get();
+	}
+
+	return result;
+}

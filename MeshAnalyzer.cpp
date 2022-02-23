@@ -24,6 +24,7 @@ void CMeshAnalyzer::Work()
 	for(int triangleIndex = BeginIndex; triangleIndex < EndIndex; triangleIndex++)
 	{
 		QMutexLocker locker(&GeometryObject.Mutex);
+		this->FillDCEL(triangleIndex);
 
 		STriangle triangle = GeometryObject.GetTriangle(triangleIndex);
 		double triangleArea = triangle.GetArea();
@@ -39,18 +40,15 @@ void CMeshAnalyzer::Work()
 		GeometryObject.MeshStats.MinTriangleArea = std::min<double>(GeometryObject.MeshStats.MinTriangleArea, triangleArea);
 		GeometryObject.MeshStats.Area			+= triangleArea;
 
-		this->FillDCEL(triangleArea);
 	//	qInfo() << "Work" << this << QThread::currentThread();
 	}
 }
 
 void CMeshAnalyzer::FillDCEL(qsizetype triangleIndex)
 {
-	std::vector<qsizetype>	indices		= GeometryObject.GetTriangleVerticesIDs(triangleIndex);
-
-	TDCEL_VertID vert1ID(indices[0]);
-	TDCEL_VertID vert2ID(indices[1]);
-	TDCEL_VertID vert3ID(indices[2]);
+	TDCEL_VertID vert1ID(GeometryObject.GetTriangleVertexIndexRaw(triangleIndex, 0));
+	TDCEL_VertID vert2ID(GeometryObject.GetTriangleVertexIndexRaw(triangleIndex, 1));
+	TDCEL_VertID vert3ID(GeometryObject.GetTriangleVertexIndexRaw(triangleIndex, 2));
 
 	TDCEL_EdgeID edge1ID(vert1ID, vert2ID);
 	TDCEL_EdgeID edge2ID(vert2ID, vert3ID);
@@ -62,9 +60,9 @@ void CMeshAnalyzer::FillDCEL(qsizetype triangleIndex)
 	TDCEL_EdgePtr edge2Ptr = GeometryObject.EdgeList.AddEdge(edge2ID);
 	TDCEL_EdgePtr edge3Ptr = GeometryObject.EdgeList.AddEdge(edge3ID);
 
-	TDCEL_VertPtr vert1Ptr = GeometryObject.EdgeList.AddVertex(vert1ID, GeometryObject.GetVertex(vert1ID), edge1Ptr);
-	TDCEL_VertPtr vert2Ptr = GeometryObject.EdgeList.AddVertex(vert2ID, GeometryObject.GetVertex(vert2ID), edge2Ptr);
-	TDCEL_VertPtr vert3Ptr = GeometryObject.EdgeList.AddVertex(vert3ID, GeometryObject.GetVertex(vert3ID), edge3Ptr);
+	TDCEL_VertPtr vert1Ptr = GeometryObject.EdgeList.AddVertex(vert1ID, GeometryObject.GetVertexRaw(vert1ID), edge1Ptr);
+	TDCEL_VertPtr vert2Ptr = GeometryObject.EdgeList.AddVertex(vert2ID, GeometryObject.GetVertexRaw(vert2ID), edge2Ptr);
+	TDCEL_VertPtr vert3Ptr = GeometryObject.EdgeList.AddVertex(vert3ID, GeometryObject.GetVertexRaw(vert3ID), edge3Ptr);
 
 	TDCEL_FacePtr facePtr = GeometryObject.EdgeList.AddFace(faceID, edge1Ptr);
 

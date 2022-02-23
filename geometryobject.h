@@ -27,59 +27,10 @@ struct SMeshStats
 	}
 };
 
-struct SEdge
+struct SVertex
 {
-	SEdge(QVector3D Vertex1, QVector3D Vertex2)
-	{
-		Vertices[0] = Vertex1;
-		Vertices[1] = Vertex2;
-	}
-
-	QVector3D Vertices[2];
-	double GetLength() const
-	{
-		return (Vertices[0] - Vertices[1]).length();
-	}
-};
-
-struct STriangle
-{
-	QVector3D Vertices[3];
-
-	SEdge GetSideA() const
-	{
-		return SEdge(Vertices[2], Vertices[1]);
-	}
-
-	SEdge GetSideB() const
-	{
-		return SEdge(Vertices[0], Vertices[2]);
-	}
-
-	SEdge GetSideC() const
-	{
-		return SEdge(Vertices[1], Vertices[0]);
-	}
-
-	double GetPerimeter() const
-	{
-		return this->GetSideA().GetLength() + this->GetSideB().GetLength() + this->GetSideC().GetLength();
-	}
-
-	// Heron's formula - https://en.wikipedia.org/wiki/Heron%27s_formula
-	double GetArea() const
-	{
-		double semiP = this->GetPerimeter() / 2.0f;
-		return	sqrt(semiP
-					*(semiP-this->GetSideA().GetLength())
-					*(semiP-this->GetSideB().GetLength())
-					*(semiP-this->GetSideC().GetLength()));
-	}
-
-	bool IsDegenerate() const
-	{
-		return qFuzzyIsNull(this->GetArea());
-	}
+	QVector3D Location;
+	QVector3D Normal;
 };
 
 using TPromise = std::function<void()>;
@@ -96,11 +47,11 @@ public:
 	void Wait(TPromise callback);
 
 	qsizetype	GetVerticesCount() const;
-	QVector3D	GetVertex(qsizetype vertexIndex) const;
+	SVertex		GetVertex(qsizetype vertexIndex) const;
 
 	qsizetype	GetTrianglesCount() const;
 	STriangle	GetTriangle(qsizetype triangleIndex) const;
-	std::vector<qsizetype> GetTriangleVerticesIDs(qsizetype triangleIndex) const;
+	qsizetype	GetTriangleVertexIndex(qsizetype triangleIndex, qsizetype vertexNum) const;
 
 	SMeshStats	GetStats() const;
 
@@ -108,24 +59,31 @@ signals:
 	void		OnRecalculated();
 
 private:
-	void		Recalculate();
-
-	QJsonObject GetInnerObject() const;
+	QJsonObject GetRawData() const;
 
 	QJsonArray	GetVerticesRaw() const;
 	QJsonArray	GetTrianglesRaw() const;
+
+	qsizetype	GetVerticesCountRaw() const;
+	QVector3D	GetVertexRaw(qsizetype vertexIndex) const;
+
+	qsizetype	GetTrianglesCountRaw() const;
+	STriangle	GetTriangleRaw(qsizetype triangleIndex) const;
+	qsizetype	GetTriangleVertexIndexRaw(qsizetype triangleIndex, qsizetype vertexNum) const;
+
+	void		Recalculate();
 
 public slots:
 	void		MeshAnalyzerFinished();
 
 private:
 	bool		bRecalculating = false;
-    QJsonObject Object;
+	QJsonObject	RawData;
 	SMeshStats	MeshStats;
 	CDCEL		EdgeList;
 
-	QMutex								Mutex;
-	QSet<class QObject*>				AnalyzeWorkers;
+	QMutex					Mutex;
+	QSet<class QObject*>	AnalyzeWorkers;
 };
 
 #endif // GEOMETRYOBJECT_H
