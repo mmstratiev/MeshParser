@@ -47,15 +47,6 @@ void MainWindow::on_FileChooseBtn_clicked()
 				ui->AvgTriAreaLabel->setText(QString::number(meshStats.GetAvgTriangleArea()));
 			});
 
-			GeometryObject.Wait([&] (){
-				qsizetype vertCount = GeometryObject.GetVerticesCount();
-				for(qsizetype vertIndex = 0; vertIndex < vertCount; vertIndex++)
-				{
-					SVertex vertex = GeometryObject.GetVertex(vertIndex);
-					qInfo() << "Vertex: " << vertex.Location << "; Normal: " << vertex.Normal;
-				}
-			});
-
 			ui->FileNameLabel->setText(fileInfo.fileName());
 		}
 	}
@@ -64,6 +55,9 @@ void MainWindow::on_FileChooseBtn_clicked()
 
 void MainWindow::on_ViewNormalsBtn_clicked()
 {
-
+	DlgVertexNormals = new CDlgVertexNormals(this);
+	DlgVertexNormals->SetGeometryObject(&GeometryObject);
+	DlgVertexNormals->setModal(true);
+	DlgVertexNormals->exec();
 }
 

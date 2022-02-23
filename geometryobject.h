@@ -44,7 +44,7 @@ public:
 
 	// Async methods
 	void Init(const QByteArray& jsonByteArr, TPromise callback);
-	void Wait(TPromise callback);
+	void Wait(TPromise callback) const;
 
 	qsizetype	GetVerticesCount() const;
 	SVertex		GetVertex(qsizetype vertexIndex) const;

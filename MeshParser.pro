@@ -10,6 +10,7 @@ CONFIG += c++11
 
 SOURCES += \
     DCEL.cpp \
+    DlgVertexNormals.cpp \
     GeometryObject.cpp \
     MeshAnalyzer.cpp \
     main.cpp \
@@ -17,11 +18,13 @@ SOURCES += \
 
 HEADERS += \
     DCEL.h \
+    DlgVertexNormals.h \
     GeometryObject.h \
     MeshAnalyzer.h \
     mainwindow.h
 
 FORMS += \
+    DlgVertexNormals.ui \
     mainwindow.ui
 
 TRANSLATIONS += \

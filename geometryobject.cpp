@@ -20,7 +20,7 @@ void CGeometryObject::Init(const QByteArray &jsonByteArr, TPromise callback)
 	this->Recalculate();
 }
 
-void CGeometryObject::Wait(TPromise callback)
+void CGeometryObject::Wait(TPromise callback) const
 {
 	if(bRecalculating)
 	{

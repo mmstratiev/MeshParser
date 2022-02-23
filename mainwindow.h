@@ -2,7 +2,10 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QSharedDataPointer>
+
 #include "GeometryObject.h"
+#include "DlgVertexNormals.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -22,6 +25,8 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+
+	CDlgVertexNormals* DlgVertexNormals;
 
 	CGeometryObject GeometryObject;
 };
