@@ -39,12 +39,14 @@ void MainWindow::on_FileChooseBtn_clicked()
 			ui->MinTriAreaLabel->setText("Calculating...");
 			ui->MaxTriAreaLabel->setText("Calculating...");
 			ui->AvgTriAreaLabel->setText("Calculating...");
+			ui->MeshType->setText("Calculating...");
 
 			GeometryObject.Init(meshJson.toJson(), [&] (){
 				SMeshStats meshStats = GeometryObject.GetStats();
 				ui->MinTriAreaLabel->setText(QString::number(meshStats.MinTriangleArea));
 				ui->MaxTriAreaLabel->setText(QString::number(meshStats.MaxTriangleArea));
-				ui->AvgTriAreaLabel->setText(QString::number(meshStats.GetAvgTriangleArea()));
+				ui->AvgTriAreaLabel->setText(QString::number(meshStats.TotalArea / GeometryObject.GetTrianglesCount()));
+				ui->MeshType->setText(meshStats.bIsClosed ? "Closed" : "Open");
 			});
 
 			ui->FileNameLabel->setText(fileInfo.fileName());

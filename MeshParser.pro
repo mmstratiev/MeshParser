@@ -13,6 +13,7 @@ SOURCES += \
     DlgVertexNormals.cpp \
     GeometryObject.cpp \
     MeshAnalyzer.cpp \
+    MeshInitializer.cpp \
     main.cpp \
     mainwindow.cpp
 
@@ -21,6 +22,7 @@ HEADERS += \
     DlgVertexNormals.h \
     GeometryObject.h \
     MeshAnalyzer.h \
+    MeshInitializer.h \
     mainwindow.h
 
 FORMS += \

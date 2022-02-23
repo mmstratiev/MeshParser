@@ -172,6 +172,8 @@ class CDCEL
 public:
 	CDCEL();
 
+	void Clear();
+
 	TDCEL_EdgePtr	AddEdge(TDCEL_EdgeID ID, TDCEL_VertPtr origin = nullptr, TDCEL_EdgePtr next = nullptr, TDCEL_EdgePtr prev = nullptr, TDCEL_FacePtr face = nullptr);
 	TDCEL_VertPtr	AddVertex(TDCEL_VertID ID, QVector3D vertex, TDCEL_EdgePtr halfEdge = nullptr);
 	TDCEL_FacePtr	AddFace(TDCEL_FaceID ID, TDCEL_EdgePtr halfEdge = nullptr);

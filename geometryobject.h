@@ -13,18 +13,11 @@ class QByteArray;
 
 struct SMeshStats
 {
-	size_t	TrianglesCount	= 0;
-
 	double	MinTriangleArea	= std::numeric_limits<double>().max();
 	double	MaxTriangleArea	= std::numeric_limits<double>().min();
-	double	Area			= 0.0f;
+	double	TotalArea		= 0.0f;
 
-	bool	bIsClosed		= false;
-
-	double GetAvgTriangleArea() const
-	{
-		return Area / TrianglesCount;
-	}
+	bool	bIsClosed		= true;
 };
 
 struct SVertex
@@ -37,6 +30,7 @@ using TPromise = std::function<void()>;
 class CGeometryObject : public QObject
 {
 	Q_OBJECT
+	friend class CMeshInitializer;
 	friend class CMeshAnalyzer;
 
 public:
@@ -72,8 +66,11 @@ private:
 	qsizetype	GetTriangleVertexIndexRaw(qsizetype triangleIndex, qsizetype vertexNum) const;
 
 	void		Recalculate();
+	void		StartInitializers();
+	void		StartAnalyzers();
 
 public slots:
+	void		MeshInitializerFinished();
 	void		MeshAnalyzerFinished();
 
 private:
@@ -83,7 +80,7 @@ private:
 	CDCEL		EdgeList;
 
 	QMutex					Mutex;
-	QSet<class QObject*>	AnalyzeWorkers;
+	QSet<class QObject*>	Workers;
 };
 
 #endif // GEOMETRYOBJECT_H

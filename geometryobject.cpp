@@ -1,4 +1,5 @@
 #include "GeometryObject.h"
+#include "MeshInitializer.h"
 #include "MeshAnalyzer.h"
 
 #include <QJsonDocument>
@@ -16,6 +17,7 @@ void CGeometryObject::Init(const QByteArray &jsonByteArr, TPromise callback)
 
 	RawData		= QJsonDocument::fromJson(jsonByteArr).object();
 	MeshStats	= SMeshStats();
+	EdgeList.Clear();
 
 	this->Recalculate();
 }
@@ -52,7 +54,13 @@ qsizetype CGeometryObject::GetTrianglesCount() const
 
 STriangle CGeometryObject::GetTriangle(qsizetype triangleIndex) const
 {
-	return EdgeList.GetFace(triangleIndex)->Get();
+	STriangle result;
+	TDCEL_FacePtr face = EdgeList.GetFace(triangleIndex);
+	if(face)
+	{
+		result = face->Get();
+	}
+	return result;
 }
 
 qsizetype CGeometryObject::GetTriangleVertexIndex(qsizetype triangleIndex, qsizetype vertexNum) const
@@ -161,13 +169,15 @@ qsizetype CGeometryObject::GetTriangleVertexIndexRaw(qsizetype triangleIndex, qs
 void CGeometryObject::Recalculate()
 {
 	bRecalculating = true;
+	this->StartInitializers();
+}
 
+void CGeometryObject::StartInitializers()
+{
 	// We want to use ALL available threads
 	int maxThreadCount	= QThreadPool::globalInstance()->maxThreadCount();
 
 	qsizetype trianglesCount		= this->GetTrianglesCountRaw();
-	MeshStats.TrianglesCount		= trianglesCount;
-
 	qsizetype trianglesPerThread	= trianglesCount / maxThreadCount;
 	qsizetype remainder				= trianglesCount % maxThreadCount;
 
@@ -186,23 +196,69 @@ void CGeometryObject::Recalculate()
 		qsizetype endIndex		= beginIndex + trianglesForThread;
 		lastEndIndex			= endIndex;
 
-		CMeshAnalyzer *worker = new CMeshAnalyzer(*this, beginIndex, endIndex);
-		worker->setObjectName("StatsWorker_" + QString::number(i));
+		CMeshInitializer *worker = new CMeshInitializer(*this, beginIndex, endIndex);
+		worker->setObjectName("InitializerWorker_" + QString::number(i));
 		worker->setAutoDelete(true);
 
-		AnalyzeWorkers.insert(worker);
+		Workers.insert(worker);
+		connect(worker, &CMeshInitializer::Finished, this, &CGeometryObject::MeshInitializerFinished, Qt::QueuedConnection);
+
+		QThreadPool::globalInstance()->start(worker);
+	}
+}
+
+void CGeometryObject::StartAnalyzers()
+{
+	// We want to use ALL available threads
+	int maxThreadCount	= QThreadPool::globalInstance()->maxThreadCount();
+
+	qsizetype trianglesCount		= this->GetTrianglesCount();
+	qsizetype trianglesPerThread	= trianglesCount / maxThreadCount;
+	qsizetype remainder				= trianglesCount % maxThreadCount;
+
+	qsizetype lastEndIndex			= 0;
+	for(int i = 0; i < maxThreadCount; i++)
+	{
+		// remainder can never be more than the divisor(num of threads), so this is a safe and efficent way to distribute work
+		qsizetype edgesForThread = trianglesPerThread;
+		if(remainder > 0)
+		{
+			edgesForThread++;
+			remainder--;
+		}
+
+		qsizetype beginIndex	= lastEndIndex;
+		qsizetype endIndex		= beginIndex + edgesForThread;
+		lastEndIndex			= endIndex;
+
+		CMeshAnalyzer *worker = new CMeshAnalyzer(*this, beginIndex, endIndex);
+		worker->setObjectName("AnalyzerWorker_" + QString::number(i));
+		worker->setAutoDelete(true);
+
+		Workers.insert(worker);
 		connect(worker, &CMeshAnalyzer::Finished, this, &CGeometryObject::MeshAnalyzerFinished, Qt::QueuedConnection);
 
 		QThreadPool::globalInstance()->start(worker);
 	}
 }
 
+void CGeometryObject::MeshInitializerFinished()
+{
+	Workers.remove(sender());
+
+	// Init is complete, now analyze the mesh
+	if(Workers.isEmpty())
+	{
+		this->StartAnalyzers();
+	}
+}
+
 void CGeometryObject::MeshAnalyzerFinished()
 {
-	AnalyzeWorkers.remove(sender());
+	Workers.remove(sender());
 
 	// Call callback only when all workers are done
-	if(AnalyzeWorkers.isEmpty())
+	if(Workers.isEmpty())
 	{
 		bRecalculating = false;
 		emit OnRecalculated();

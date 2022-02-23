@@ -3,6 +3,13 @@
 
 CDCEL::CDCEL() {}
 
+void CDCEL::Clear()
+{
+	Vertices.clear();
+	Edges.clear();
+	Faces.clear();
+}
+
 TDCEL_EdgePtr CDCEL::AddEdge(TDCEL_EdgeID ID, TDCEL_VertPtr origin, TDCEL_EdgePtr next, TDCEL_EdgePtr prev, TDCEL_FacePtr face)
 {
 	TDCEL_EdgePtr result;

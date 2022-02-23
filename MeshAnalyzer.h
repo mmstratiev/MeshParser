@@ -22,7 +22,6 @@ public:
 
 private:
 	void Work();
-	void FillDCEL(qsizetype triangleIndex);
 
 private:
 	CGeometryObject&		GeometryObject;
