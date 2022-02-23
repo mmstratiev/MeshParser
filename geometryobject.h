@@ -7,6 +7,8 @@
 #include <QMutex>
 #include <QSet>
 
+#include "DCEL.h"
+
 class QByteArray;
 
 struct SMeshStats
@@ -98,6 +100,7 @@ public:
 
 	qsizetype	GetTrianglesCount() const;
 	STriangle	GetTriangle(qsizetype triangleIndex) const;
+	std::vector<qsizetype> GetTriangleVerticesIDs(qsizetype triangleIndex) const;
 
 	SMeshStats	GetStats() const;
 
@@ -119,9 +122,9 @@ private:
 	bool		bRecalculating = false;
     QJsonObject Object;
 	SMeshStats	MeshStats;
+	CDCEL		EdgeList;
 
 	QMutex								Mutex;
-	QHash<qsizetype, QSet<qsizetype>>	AdjacencyMap;
 	QSet<class QObject*>				AnalyzeWorkers;
 };
 

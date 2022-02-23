@@ -1,5 +1,5 @@
-#ifndef MESHSTATSWORKER_H
-#define MESHSTATSWORKER_H
+#ifndef MESHANALYZER_H
+#define MESHANALYZER_H
 
 #include <QObject>
 #include <QRunnable>
@@ -22,6 +22,7 @@ public:
 
 private:
 	void Work();
+	void FillDCEL(qsizetype triangleIndex);
 
 private:
 	CGeometryObject&		GeometryObject;
@@ -30,4 +31,4 @@ private:
 
 };
 
-#endif // MESHSTATSWORKER_H
+#endif // MESHANALYZER_H

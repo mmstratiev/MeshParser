@@ -1,5 +1,5 @@
 #include "GeometryObject.h"
-#include "MeshStatsWorker.h"
+#include "MeshAnalyzer.h"
 
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -60,10 +60,22 @@ STriangle CGeometryObject::GetTriangle(qsizetype triangleIndex) const
 {
 	STriangle result;
 
+	std::vector<qsizetype> indices = this->GetTriangleVerticesIDs(triangleIndex);
+	result.Vertices[0] = this->GetVertex(indices[0]);
+	result.Vertices[1] = this->GetVertex(indices[1]);
+	result.Vertices[2] = this->GetVertex(indices[2]);
+
+	return result;
+}
+
+std::vector<qsizetype> CGeometryObject::GetTriangleVerticesIDs(qsizetype triangleIndex) const
+{
+	std::vector<qsizetype> result;
+
 	QJsonArray triangles = this->GetTrianglesRaw();
-	result.Vertices[0] = this->GetVertex(triangles.at(triangleIndex * 3).toInt());
-	result.Vertices[1] = this->GetVertex(triangles.at(triangleIndex * 3 + 1).toInt());
-	result.Vertices[2] = this->GetVertex(triangles.at(triangleIndex * 3 + 2).toInt());
+	result.push_back(triangles.at(triangleIndex * 3).toInt());
+	result.push_back(triangles.at(triangleIndex * 3 + 1).toInt());
+	result.push_back(triangles.at(triangleIndex * 3 + 2).toInt());
 
 	return result;
 }
