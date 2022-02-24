@@ -7,7 +7,7 @@
 #include <QMutex>
 #include <QSet>
 
-#include "DCEL.h"
+#include "DCEL/DCEL.h"
 
 class QByteArray;
 

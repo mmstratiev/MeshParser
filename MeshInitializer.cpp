@@ -55,20 +55,20 @@ void CMeshInitializer::FillDCEL(qsizetype triangleIndex)
 
 	TDCEL_FacePtr facePtr = GeometryObject.EdgeList.AddFace(faceID, edge1Ptr);
 
-	edge1Ptr->Next = edge2Ptr;
-	edge1Ptr->Prev = edge3Ptr;
-	edge1Ptr->Origin = vert1Ptr;
-	edge1Ptr->Face = facePtr;
+	edge1Ptr->SetNext(edge2Ptr);
+	edge1Ptr->SetPrev(edge3Ptr);
+	edge1Ptr->SetOrigin(vert1Ptr);
+	edge1Ptr->SetFace(facePtr);
 
-	edge2Ptr->Next = edge3Ptr;
-	edge2Ptr->Prev = edge1Ptr;
-	edge2Ptr->Origin = vert2Ptr;
-	edge2Ptr->Face = facePtr;
+	edge2Ptr->SetNext(edge3Ptr);
+	edge2Ptr->SetPrev(edge1Ptr);
+	edge2Ptr->SetOrigin(vert2Ptr);
+	edge2Ptr->SetFace(facePtr);
 
-	edge3Ptr->Next = edge1Ptr;
-	edge3Ptr->Prev = edge2Ptr;
-	edge3Ptr->Origin = vert3Ptr;
-	edge3Ptr->Face = facePtr;
+	edge3Ptr->SetNext(edge1Ptr);
+	edge3Ptr->SetPrev(edge2Ptr);
+	edge3Ptr->SetOrigin(vert3Ptr);
+	edge3Ptr->SetFace(facePtr);
 }
 
 void CMeshInitializer::FillMeshStats(qsizetype triangleIndex)

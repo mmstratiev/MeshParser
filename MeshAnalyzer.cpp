@@ -4,6 +4,9 @@
 #include <QMutexLocker>
 #include <QDebug>
 
+#include "DCEL/DCEL_Edge.h"
+#include "DCEL/DCEL_Face.h"
+
 CMeshAnalyzer::CMeshAnalyzer(CGeometryObject& inOutObject, qsizetype beginIndex, qsizetype endIndex, QObject *parent)
 	: QObject{parent}
 	, GeometryObject(inOutObject)
@@ -33,12 +36,12 @@ void CMeshAnalyzer::Work()
 		TDCEL_FacePtr faceToCheck = GeometryObject.EdgeList.GetFace(triangleIndex);
 		if(faceToCheck)
 		{
-			TDCEL_EdgePtr currentEdge = faceToCheck->Edge;
+			TDCEL_EdgePtr currentEdge = faceToCheck->Edge();
 			do
 			{
-				GeometryObject.MeshStats.bIsClosed = currentEdge->Twin;
-				currentEdge = currentEdge->Next;
-			} while(currentEdge != faceToCheck->Edge && GeometryObject.MeshStats.bIsClosed);
+				GeometryObject.MeshStats.bIsClosed = currentEdge->Twin();
+				currentEdge = currentEdge->Next();
+			} while(currentEdge != faceToCheck->Edge() && GeometryObject.MeshStats.bIsClosed);
 		}
 	//	qInfo() << "Work" << this << QThread::currentThread();
 	}

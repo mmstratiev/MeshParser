@@ -9,25 +9,34 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    DCEL.cpp \
-    DlgVertexNormals.cpp \
+    DCEL/DCEL.cpp \
+    DCEL/DCEL_Edge.cpp \
+    DCEL/DCEL_Face.cpp \
+    DCEL/DCEL_Vertex.cpp \
+    DCEL/Iterators/VertexFacesIterator.cpp \
     GeometryObject.cpp \
     MeshAnalyzer.cpp \
     MeshInitializer.cpp \
+    UI/DlgVertexNormals.cpp \
+    UI/mainwindow.cpp \
     main.cpp \
-    mainwindow.cpp
 
 HEADERS += \
-    DCEL.h \
-    DlgVertexNormals.h \
+    DCEL/DCEL.h \
+    DCEL/DCEL_Datatypes.h \
+    DCEL/DCEL_Edge.h \
+    DCEL/DCEL_Face.h \
+    DCEL/DCEL_Vertex.h \
+    DCEL/Iterators/VertexFacesIterator.h \
     GeometryObject.h \
     MeshAnalyzer.h \
     MeshInitializer.h \
-    mainwindow.h
+    UI/DlgVertexNormals.h \
+    UI/mainwindow.h \
 
 FORMS += \
-    DlgVertexNormals.ui \
-    mainwindow.ui
+    UI/DlgVertexNormals.ui \
+    UI/mainwindow.ui \
 
 TRANSLATIONS += \
     MeshParser_en_US.ts

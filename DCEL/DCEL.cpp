@@ -1,6 +1,5 @@
 #include "DCEL.h"
 
-
 CDCEL::CDCEL() {}
 
 void CDCEL::Clear()
@@ -17,7 +16,7 @@ TDCEL_EdgePtr CDCEL::AddEdge(TDCEL_EdgeID ID, TDCEL_VertPtr origin, TDCEL_EdgePt
 	auto edgeIt = Edges.find(ID);
 	if(edgeIt == Edges.end())
 	{
-		auto insertIt = Edges.insert({ ID, std::make_unique<SDCEL_Edge>() });
+		auto insertIt = Edges.insert({ ID, std::make_unique<CDCEL_Edge>(ID) });
 		result = insertIt.first->second.get();
 	}
 	else
@@ -28,14 +27,14 @@ TDCEL_EdgePtr CDCEL::AddEdge(TDCEL_EdgeID ID, TDCEL_VertPtr origin, TDCEL_EdgePt
 	auto twinIt = Edges.find(ID.GetTwin());
 	if(twinIt != Edges.end())
 	{
-		twinIt->second->Twin = result;
-		result->Twin = twinIt->second.get();
+		twinIt->second->SetTwin(result);;
+		result->SetTwin(twinIt->second.get());
 	}
 
-	result->Origin		= origin;
-	result->Next		= next;
-	result->Prev		= prev;
-	result->Face		= face;
+	result->SetOrigin(origin);
+	result->SetNext(next);
+	result->SetPrev(prev);
+	result->SetFace(face);
 	return result;
 }
 
@@ -46,7 +45,7 @@ TDCEL_VertPtr CDCEL::AddVertex(TDCEL_VertID ID, QVector3D vertex, TDCEL_EdgePtr 
 	auto vertIt = Vertices.find(ID);
 	if(vertIt == Vertices.end())
 	{
-		auto insertIt = Vertices.insert({ ID, std::make_unique<SDCEL_Vertex>() });
+		auto insertIt = Vertices.insert({ ID, std::make_unique<CDCEL_Vertex>(ID) });
 		result = insertIt.first->second.get();
 	}
 	else
@@ -54,8 +53,8 @@ TDCEL_VertPtr CDCEL::AddVertex(TDCEL_VertID ID, QVector3D vertex, TDCEL_EdgePtr 
 		result = vertIt->second.get();
 	}
 
-	result->Vertex		= vertex;
-	result->Edge		= halfEdge;
+	result->SetVertex(vertex);
+	result->SetEdge(halfEdge);
 	return result;
 }
 
@@ -66,7 +65,7 @@ TDCEL_FacePtr CDCEL::AddFace(TDCEL_FaceID ID, TDCEL_EdgePtr halfEdge)
 	auto faceIt = Faces.find(ID);
 	if(faceIt == Faces.end())
 	{
-		auto insertIt = Faces.insert({ ID, std::make_unique<SDCEL_Face>() });
+		auto insertIt = Faces.insert({ ID, std::make_unique<CDCEL_Face>(ID) });
 		result = insertIt.first->second.get();
 	}
 	else
@@ -74,7 +73,7 @@ TDCEL_FacePtr CDCEL::AddFace(TDCEL_FaceID ID, TDCEL_EdgePtr halfEdge)
 		result = faceIt->second.get();
 	}
 
-	result->Edge		= halfEdge;
+	result->SetEdge(halfEdge);
 	return result;
 }
 
@@ -120,45 +119,53 @@ QVector3D CDCEL::GetVertexNormal(TDCEL_VertID Id) const
 	TDCEL_VertPtr vertex = this->GetVertex(Id);
 	if(!vertex) return result;
 
-	auto iterateAdjacentTris = [&] (TDCEL_EdgePtr start, bool clockwiseTraversal) -> bool
+	CVertexFacesIterator it = vertex->GetAdjacentFacesIterator();
+	do
 	{
-		TDCEL_EdgePtr currentEdge = vertex->Edge;
-		do
-		{
-			if(currentEdge->Origin == vertex)
-			{
-				STriangle triangle = currentEdge->Face->Get();
-				if(triangle.IsDegenerate())
-				{
-					return false;
-				}
-				result += triangle.GetNormal();
+		STriangle triangle = (*it)->Get();
+		result += triangle.GetNormal();
+		++it;
+	} while(!it.End());
 
-				// go back to triangle on the left
-				if(!clockwiseTraversal)
-				{
-					currentEdge = currentEdge->Prev;
-				}
-				currentEdge = currentEdge->Twin;
+	//auto iterateAdjacentTris = [&] (TDCEL_EdgePtr start, bool clockwiseTraversal) -> bool
+	//{
+	//	TDCEL_EdgePtr currentEdge = vertex->Edge;
+	//	do
+	//	{
+	//		if(currentEdge->Origin == vertex)
+	//		{
+	//			STriangle triangle = currentEdge->Face->Get();
+	//			if(triangle.IsDegenerate())
+	//			{
+	//				return false;
+	//			}
+	//			result += triangle.GetNormal();
 
-				if(!currentEdge) // non-manifold/open mesh
-				{
-					return false;
-				}
-			}
-			else
-			{
-				currentEdge = currentEdge->Next;
-			}
-		} while(currentEdge != start);
+	//			// go back to triangle on the left
+	//			if(!clockwiseTraversal)
+	//			{
+	//				currentEdge = currentEdge->Prev;
+	//			}
+	//			currentEdge = currentEdge->Twin;
 
-		return true;
-	};
+	//			if(!currentEdge) // non-manifold/open mesh
+	//			{
+	//				return false;
+	//			}
+	//		}
+	//		else
+	//		{
+	//			currentEdge = currentEdge->Next;
+	//		}
+	//	} while(currentEdge != start);
 
-	if(!iterateAdjacentTris(vertex->Edge, true))
-	{
-		iterateAdjacentTris(vertex->Edge, false);
-	}
+	//	return true;
+	//};
+
+	//if(!iterateAdjacentTris(vertex->Edge, true))
+	//{
+	//	iterateAdjacentTris(vertex->Edge, false);
+	//}
 
 	return result.normalized();
 }

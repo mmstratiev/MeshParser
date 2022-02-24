@@ -46,6 +46,9 @@ void CDlgVertexNormals::LoadVertices()
 			qsizetype vertsCount = GeometryObject->GetVerticesCount();
 			for(qsizetype vertIndex = 0; vertIndex < vertsCount; vertIndex++)
 			{
+				// Emit a signal for the main thread to handle filling in the data.
+				// It appears Qt doesn't like it if we try to edit some UI stuff outside the GUI thread.
+				// This makes the window stutter while filling, but the progress bar makes up for it.
 				SVertex vertex = GeometryObject->GetVertex(vertIndex);
 				emit AddedVertex(vertIndex, vertex);
 			}
