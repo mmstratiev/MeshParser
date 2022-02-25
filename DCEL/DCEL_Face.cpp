@@ -26,3 +26,8 @@ CFaceEdgesIterator CDCEL_Face::GetFaceEdgesIterator()
 {
 	return CFaceEdgesIterator(this);
 }
+
+CFaceVerticesIterator CDCEL_Face::GetFaceVerticesIterator()
+{
+	return CFaceVerticesIterator(this);
+}

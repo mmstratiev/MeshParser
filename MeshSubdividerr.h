@@ -19,6 +19,8 @@ signals:
 public:
 	void run() Q_DECL_OVERRIDE;
 
+	CDCEL GetResult();
+
 private:
 	void Work();
 
@@ -26,6 +28,7 @@ private:
 	CGeometryObject&		GeometryObject;
 	qsizetype				BeginIndex	= 0;
 	qsizetype				EndIndex	= 0;
+	CDCEL					Destination;
 
 };
 

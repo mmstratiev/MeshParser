@@ -1,5 +1,5 @@
 #include "GeometryObject.h"
-#include "MeshInitializer.h"
+#include "MeshReader.h"
 #include "MeshAnalyzer.h"
 
 #include <QJsonDocument>
@@ -9,28 +9,37 @@
 #include <QMutexLocker>
 
 CGeometryObject::CGeometryObject()
-{}
+{
+}
 
-void CGeometryObject::Init(const QByteArray &jsonByteArr, TPromise callback)
+void CGeometryObject::Init(const QByteArray &jsonByteArr)
 {
 	EdgeList.Clear();
-	RawData		= QJsonDocument::fromJson(jsonByteArr).object();
 
 	MinTriangleArea	= std::numeric_limits<double>().max();
 	MaxTriangleArea	= std::numeric_limits<double>().min();
 	TotalArea		= 0.0f;
 	bIsClosed		= true;
 
-	connect(this, &CGeometryObject::OnRecalculated, callback);
-
-	this->Recalculate();
+	this->Initialize(jsonByteArr);
 }
 
-void CGeometryObject::Wait(TPromise callback) const
+void CGeometryObject::Init(CDCEL& edgeList)
 {
-	if(bRecalculating)
+	EdgeList = edgeList;
+	this->Analyze();
+}
+
+bool CGeometryObject::IsInitialized() const
+{
+	return EdgeList.GetVerticesCount() > 0;
+}
+
+void CGeometryObject::WaitForIdle(TOnIdleCallback callback) const
+{
+	if(State == EState::Idle)
 	{
-		connect(this, &CGeometryObject::OnRecalculated, callback);
+		connect(this, &CGeometryObject::Idled, callback);
 	}
 	else
 	{
@@ -43,12 +52,17 @@ qsizetype CGeometryObject::GetVerticesCount() const
 	return EdgeList.GetVerticesCount();
 }
 
-SVertex CGeometryObject::GetVertex(qsizetype vertexIndex) const
+bool CGeometryObject::GetVertex(qsizetype vertexID, SVertex& outVertex) const
 {
-	SVertex result;
-	TDCEL_VertPtr vertex = EdgeList.GetVertex(vertexIndex);
-	result.Location = vertex->Get();
-	result.Normal	= vertex->GetNormal();
+	bool result = false;
+	TDCEL_VertPtr vertex = EdgeList.GetVertex(vertexID);
+	if(vertex)
+	{
+		outVertex.Location	= vertex->Get();
+		outVertex.Normal	= vertex->GetNormal();
+		result = true;
+	}
+
 	return result;
 }
 
@@ -57,25 +71,28 @@ qsizetype CGeometryObject::GetTrianglesCount() const
 	return EdgeList.GetFacesCount();
 }
 
-STriangle CGeometryObject::GetTriangle(qsizetype triangleIndex) const
+bool CGeometryObject::GetTriangle(qsizetype triangleID, STriangle& outTriangle) const
 {
-	STriangle result;
-	TDCEL_FacePtr face = EdgeList.GetFace(triangleIndex);
+	bool result = false;
+	TDCEL_FacePtr face = EdgeList.GetFace(triangleID);
 	if(face)
 	{
-		result = face->Get();
+		outTriangle = face->Get();
+		result = true;
 	}
 	return result;
 }
 
-qsizetype CGeometryObject::GetTriangleVertexIndex(qsizetype triangleIndex, qsizetype vertexNum) const
+qsizetype CGeometryObject::GetTriangleVertID(qsizetype triangleID, qsizetype vertIndex) const
 {
-	qsizetype result;
-	vertexNum = std::min<qsizetype>(vertexNum, 2);
-
-	QJsonArray triangles = this->GetTrianglesRaw();
-	result = triangles.at(triangleIndex * 3 + vertexNum).toInt();
-
+	qsizetype result = 0;
+	TDCEL_FacePtr face = EdgeList.GetFace(triangleID);
+	if(face)
+	{
+		CFaceVerticesIterator vertIt = face->GetFaceVerticesIterator();
+		vertIt += vertIndex;
+		result = vertIt.Value()->GetID();
+	}
 	return result;
 }
 
@@ -99,105 +116,23 @@ bool CGeometryObject::IsClosed() const
 	return bIsClosed;
 }
 
-QJsonObject CGeometryObject::GetRawData() const
+void CGeometryObject::SetState(EState newState)
 {
-	QJsonObject result;
-
-	auto objectIt = RawData.find("geometry_object");
-	if(objectIt != RawData.end())
-	{
-		result = objectIt.value().toObject();
-	}
-
-	return result;
+	State = newState;
+	emit StateChanged(newState);
+	if(State == EState::Idle)
+		emit Idled();
 }
 
-QJsonArray CGeometryObject::GetVerticesRaw() const
+void CGeometryObject::Initialize(const QByteArray& rawData)
 {
-	QJsonArray result;
-	QJsonObject innerObject = this->GetRawData();
+	this->SetState(EState::Initializing);
 
-	auto verticesIt = innerObject.find("vertices");
-	if(verticesIt != innerObject.end())
-	{
-		result = verticesIt.value().toArray();
-	}
-
-	return result;
-}
-
-QJsonArray CGeometryObject::GetTrianglesRaw() const
-{
-	QJsonArray result;
-	QJsonObject innerObject = this->GetRawData();
-
-	auto verticesIt = innerObject.find("triangles");
-	if(verticesIt != innerObject.end())
-	{
-		result = verticesIt.value().toArray();
-	}
-
-	return result;
-}
-
-qsizetype CGeometryObject::GetVerticesCountRaw() const
-{
-	QJsonArray vertices = this->GetVerticesRaw();
-	return vertices.count() / 3;
-}
-
-QVector3D CGeometryObject::GetVertexRaw(qsizetype vertexIndex) const
-{
-	QVector3D result;
-
-	QJsonArray vertices = this->GetVerticesRaw();
-	result.setX(vertices.at(vertexIndex * 3).toDouble());
-	result.setY(vertices.at(vertexIndex * 3 + 1).toDouble());
-	result.setZ(vertices.at(vertexIndex * 3 + 2).toDouble());
-
-	return result;
-}
-
-qsizetype CGeometryObject::GetTrianglesCountRaw() const
-{
-	QJsonArray triangles = this->GetTrianglesRaw();
-	return triangles.count() / 3;
-}
-
-STriangle CGeometryObject::GetTriangleRaw(qsizetype triangleIndex) const
-{
-	STriangle result;
-
-	result.Vertices[0] = this->GetVertexRaw(this->GetTriangleVertexIndexRaw(triangleIndex, 0));
-	result.Vertices[1] = this->GetVertexRaw(this->GetTriangleVertexIndexRaw(triangleIndex, 1));
-	result.Vertices[2] = this->GetVertexRaw(this->GetTriangleVertexIndexRaw(triangleIndex, 2));
-
-	return result;
-}
-
-qsizetype CGeometryObject::GetTriangleVertexIndexRaw(qsizetype triangleIndex, qsizetype vertexNum) const
-{
-	qsizetype result;
-	vertexNum = std::min<qsizetype>(vertexNum, 2);
-
-	QJsonArray triangles = this->GetTrianglesRaw();
-	result = triangles.at(triangleIndex * 3 + vertexNum).toInt();
-
-	return result;
-}
-
-void CGeometryObject::Recalculate()
-{
-	bRecalculating = true;
-	this->StartInitializers();
-}
-
-void CGeometryObject::StartInitializers()
-{
 	// We want to use ALL available threads
 	int maxThreadCount	= QThreadPool::globalInstance()->maxThreadCount();
 
-	qsizetype trianglesCount		= this->GetTrianglesCountRaw();
+	QJsonObject jsonDataObject		= QJsonDocument::fromJson(rawData).object();
+	qsizetype trianglesCount		= CMeshReader::GetTrianglesCountRaw(jsonDataObject);
 	qsizetype trianglesPerThread	= trianglesCount / maxThreadCount;
 	qsizetype remainder				= trianglesCount % maxThreadCount;
 
@@ -216,19 +151,21 @@ void CGeometryObject::StartInitializers()
 		qsizetype endIndex		= beginIndex + trianglesForThread;
 		lastEndIndex			= endIndex;
 
-		CMeshInitializer *worker = new CMeshInitializer(*this, beginIndex, endIndex);
+		CMeshReader *worker = new CMeshReader(*this, jsonDataObject, beginIndex, endIndex);
 		worker->setObjectName("InitializerWorker_" + QString::number(i));
 		worker->setAutoDelete(true);
 
 		Workers.insert(worker);
-		connect(worker, &CMeshInitializer::Finished, this, &CGeometryObject::MeshInitializerFinished, Qt::QueuedConnection);
+		connect(worker, &CMeshReader::Finished, this, &CGeometryObject::MeshInitializerFinished, Qt::QueuedConnection);
 
 		QThreadPool::globalInstance()->start(worker);
 	}
 }
 
-void CGeometryObject::StartAnalyzers()
+void CGeometryObject::Analyze()
 {
+	this->SetState(EState::Analyzing);
+
 	// We want to use ALL available threads
 	int maxThreadCount	= QThreadPool::globalInstance()->maxThreadCount();
 
@@ -262,25 +199,33 @@ void CGeometryObject::StartAnalyzers()
 	}
 }
 
+void CGeometryObject::OnStateChanged(EState newState)
+{
+	switch (newState)
+	{
+	case CGeometryObject::EState::Initializing:
+		break;
+	case CGeometryObject::EState::Analyzing:
+		break;
+	case CGeometryObject::EState::Idle:
+		break;
+	}
+}
+
 void CGeometryObject::MeshInitializerFinished()
 {
 	Workers.remove(sender());
-
-	// Init is complete, now analyze the mesh
 	if(Workers.isEmpty())
 	{
-		this->StartAnalyzers();
+		this->Analyze();
 	}
 }
 
 void CGeometryObject::MeshAnalyzerFinished()
 {
 	Workers.remove(sender());
-
-	// Call callback only when all workers are done
 	if(Workers.isEmpty())
 	{
-		bRecalculating = false;
-		emit OnRecalculated();
+		this->SetState(EState::Idle);
 	}
 }

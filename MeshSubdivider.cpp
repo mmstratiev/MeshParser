@@ -14,10 +14,14 @@ void CMeshSubdivider::run()
 
 }
 
+CDCEL CMeshSubdivider::GetResult()
+{
+	return Destination;
+}
+
 void CMeshSubdivider::Work()
 {
 	CDCEL& Source = GeometryObject.EdgeList;
-	CDCEL Destination;
 
 	size_t oddVertIndex = Source.GetVerticesCount();
 	std::unordered_map<TDCEL_EdgeID, TDCEL_VertID, TDCEL_EdgeID> EdgeToVerts;

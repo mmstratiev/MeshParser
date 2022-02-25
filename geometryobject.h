@@ -17,27 +17,39 @@ struct SVertex
 	QVector3D Normal;
 };
 
-using TPromise = std::function<void()>;
+using TOnIdleCallback = std::function<void()>;
+
 class CGeometryObject : public QObject
 {
 	Q_OBJECT
-	friend class CMeshInitializer;
+	friend class CMeshReader;
 	friend class CMeshAnalyzer;
 	friend class CMeshSubdivider;
 
 public:
+	enum class EState
+	{
+		Initializing,
+		Analyzing,
+		Idle,
+	};
+
 	CGeometryObject();
 
 	// Async methods
-	void Init(const QByteArray& jsonByteArr, TPromise callback);
-	void Wait(TPromise callback) const;
+	void		Init(const QByteArray& jsonByteArr);
+	void		Init(CDCEL& edgeList);
+
+	bool		IsInitialized() const;
+
+	void		WaitForIdle(TOnIdleCallback callback) const;
 
 	qsizetype	GetVerticesCount() const;
-	SVertex		GetVertex(qsizetype vertexIndex) const;
+	bool		GetVertex(qsizetype vertexID, SVertex& outVertex) const;
 
 	qsizetype	GetTrianglesCount() const;
-	STriangle	GetTriangle(qsizetype triangleIndex) const;
-	qsizetype	GetTriangleVertexIndex(qsizetype triangleIndex, qsizetype vertexNum) const;
+	bool		GetTriangle(qsizetype triangleID, STriangle& outTriangle) const;
+	qsizetype	GetTriangleVertID(qsizetype triangleID, qsizetype vertIndex) const;
 
 	double		GetMinTriangleArea() const;
 	double		GetMaxTriangleArea() const;
@@ -46,32 +58,23 @@ public:
 	bool		IsClosed() const;
 
 signals:
-	void		OnRecalculated();
+	void		StateChanged(CGeometryObject::EState newState);
+	void		Idled();
 
 private:
-	QJsonObject GetRawData() const;
+	void		SetState(EState newState);
 
-	QJsonArray	GetVerticesRaw() const;
-	QJsonArray	GetTrianglesRaw() const;
+	void		Initialize(const QByteArray &rawData);
+	void		Analyze();
 
-	qsizetype	GetVerticesCountRaw() const;
-	QVector3D	GetVertexRaw(qsizetype vertexIndex) const;
+private slots:
+	void		OnStateChanged(CGeometryObject::EState newState);
 
-	qsizetype	GetTrianglesCountRaw() const;
-	STriangle	GetTriangleRaw(qsizetype triangleIndex) const;
-	qsizetype	GetTriangleVertexIndexRaw(qsizetype triangleIndex, qsizetype vertexNum) const;
-
-	void		Recalculate();
-	void		StartInitializers();
-	void		StartAnalyzers();
-
-public slots:
 	void		MeshInitializerFinished();
 	void		MeshAnalyzerFinished();
 
 private:
-	bool		bRecalculating = false;
-	QJsonObject	RawData;
+	EState		State = EState::Idle;
 	CDCEL		EdgeList;
 
 	double		MinTriangleArea	= std::numeric_limits<double>().max();

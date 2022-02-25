@@ -36,7 +36,7 @@ void CDlgVertexNormals::LoadVertices()
 {
 	connect(this, &CDlgVertexNormals::AddedVertex, this, &CDlgVertexNormals::OnAddedVertex);
 
-	GeometryObject->Wait([&] (){
+	GeometryObject->WaitForIdle([&] (){
 		qsizetype vertsCount = GeometryObject->GetVerticesCount();
 		ui->progressBar->setMaximum(vertsCount-1);
 		ui->normalsTable->setRowCount(vertsCount);
@@ -49,8 +49,11 @@ void CDlgVertexNormals::LoadVertices()
 				// Emit a signal for the main thread to handle filling in the data.
 				// It appears Qt doesn't like it if we try to edit some UI stuff outside the GUI thread.
 				// This makes the window stutter while filling, but the progress bar makes up for it.
-				SVertex vertex = GeometryObject->GetVertex(vertIndex);
-				emit AddedVertex(vertIndex, vertex);
+				SVertex vertex;
+				if(GeometryObject->GetVertex(vertIndex, vertex))
+				{
+					emit AddedVertex(vertIndex, vertex);
+				}
 			}
 		});
 	} );

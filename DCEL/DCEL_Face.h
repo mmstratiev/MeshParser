@@ -3,6 +3,7 @@
 
 #include "DCEL_Datatypes.h"
 #include "Iterators/FaceEdgesIterator.h"
+#include "Iterators/FaceVerticesIterator.h"
 
 class CDCEL_Face
 {
@@ -10,10 +11,11 @@ public:
 	CDCEL_Face(TDCEL_FaceID id);
 	STriangle Get() const;
 
-	TDCEL_EdgePtr Edge() const;
-	void SetEdge(TDCEL_EdgePtr newEdge);
+	TDCEL_EdgePtr	Edge() const;
+	void			SetEdge(TDCEL_EdgePtr newEdge);
 
-	CFaceEdgesIterator GetFaceEdgesIterator();
+	CFaceEdgesIterator		GetFaceEdgesIterator();
+	CFaceVerticesIterator	GetFaceVerticesIterator();
 
 private:
 	TDCEL_FaceID	ID = 0;

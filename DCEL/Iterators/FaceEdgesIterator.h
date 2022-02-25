@@ -3,7 +3,6 @@
 
 #include "DCEL/DCEL_Datatypes.h"
 
-
 class CFaceEdgesIterator
 {
 public:

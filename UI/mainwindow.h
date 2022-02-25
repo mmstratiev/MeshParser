@@ -19,9 +19,16 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+public slots:
+	void OnObjectStateChanged(CGeometryObject::EState newState);
+
 private slots:	
 	void on_FileChooseBtn_clicked();
 	void on_ViewNormalsBtn_clicked();
+
+	void on_ExportBtn_clicked();
+
+	void on_SubdivideBtn_clicked();
 
 private:
     Ui::MainWindow *ui;
