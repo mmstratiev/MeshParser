@@ -15,20 +15,25 @@ public:
 	TDCEL_EdgePtr Next() const;
 	TDCEL_FacePtr Face() const;
 
+	TDCEL_EdgePtr AdjacentCW() const;
+	TDCEL_EdgePtr AdjacentCCW() const;
+
 	void SetOrigin(TDCEL_VertPtr newOrigin);
 	void SetTwin(TDCEL_EdgePtr newTwin);
 	void SetNext(TDCEL_EdgePtr newNext);
 	void SetPrev(TDCEL_EdgePtr newPrev);
 	void SetFace(TDCEL_FacePtr newFace);
 
+	const TDCEL_EdgeID &GetID() const;
+
 private:
 	TDCEL_EdgeID ID;
 
-	TDCEL_VertPtr mOrigin;
-	TDCEL_EdgePtr mTwin;
-	TDCEL_EdgePtr mNext;
-	TDCEL_EdgePtr mPrev;
-	TDCEL_FacePtr mFace;
+	TDCEL_VertPtr mOrigin	= nullptr;
+	TDCEL_EdgePtr mTwin		= nullptr;
+	TDCEL_EdgePtr mNext		= nullptr;
+	TDCEL_EdgePtr mPrev		= nullptr;
+	TDCEL_FacePtr mFace		= nullptr;
 };
 
 #endif // DCEL_EDGE_H

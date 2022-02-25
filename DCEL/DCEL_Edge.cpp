@@ -37,6 +37,21 @@ TDCEL_FacePtr CDCEL_Edge::Face() const
 	return mFace;
 }
 
+TDCEL_EdgePtr CDCEL_Edge::AdjacentCW() const
+{
+	TDCEL_EdgePtr result = this->Twin();
+	if(result)
+	{
+		result = result->Next();
+	}
+	return result;
+}
+
+TDCEL_EdgePtr CDCEL_Edge::AdjacentCCW() const
+{
+	return this->Prev()->Twin();
+}
+
 void CDCEL_Edge::SetOrigin(TDCEL_VertPtr newOrigin)
 {
 	mOrigin = newOrigin;
@@ -60,4 +75,9 @@ void CDCEL_Edge::SetPrev(TDCEL_EdgePtr newPrev)
 void CDCEL_Edge::SetFace(TDCEL_FacePtr newFace)
 {
 	mFace = newFace;
+}
+
+const TDCEL_EdgeID &CDCEL_Edge::GetID() const
+{
+	return ID;
 }

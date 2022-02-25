@@ -16,14 +16,14 @@ public:
 	void			Reset();
 
 private:
-	TDCEL_EdgePtr	GetNextTwin();
+	TDCEL_EdgePtr	GetAdjacentEdge();
 
 private:
-	bool			bFoundBoundary	= false;
-	bool			bClockwise		= true;
-	TDCEL_VertPtr	Vertex;
-	TDCEL_EdgePtr	Edge;
-
+	bool				bBegun			= false;
+	bool				bFoundBoundary	= false;
+	bool				bClockwise		= true;
+	TDCEL_VertPtr		Vertex			= nullptr;
+	TDCEL_EdgePtr		Edge			= nullptr;
 
 };
 

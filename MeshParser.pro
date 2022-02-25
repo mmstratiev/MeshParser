@@ -13,10 +13,12 @@ SOURCES += \
     DCEL/DCEL_Edge.cpp \
     DCEL/DCEL_Face.cpp \
     DCEL/DCEL_Vertex.cpp \
+    DCEL/Iterators/FaceEdgesIterator.cpp \
     DCEL/Iterators/VertexFacesIterator.cpp \
     GeometryObject.cpp \
     MeshAnalyzer.cpp \
     MeshInitializer.cpp \
+    MeshSubdivider.cpp \
     UI/DlgVertexNormals.cpp \
     UI/mainwindow.cpp \
     main.cpp \
@@ -27,10 +29,12 @@ HEADERS += \
     DCEL/DCEL_Edge.h \
     DCEL/DCEL_Face.h \
     DCEL/DCEL_Vertex.h \
+    DCEL/Iterators/FaceEdgesIterator.h \
     DCEL/Iterators/VertexFacesIterator.h \
     GeometryObject.h \
     MeshAnalyzer.h \
     MeshInitializer.h \
+    MeshSubdividerr.h \
     UI/DlgVertexNormals.h \
     UI/mainwindow.h \
 

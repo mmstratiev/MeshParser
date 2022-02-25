@@ -11,15 +11,6 @@
 
 class QByteArray;
 
-struct SMeshStats
-{
-	double	MinTriangleArea	= std::numeric_limits<double>().max();
-	double	MaxTriangleArea	= std::numeric_limits<double>().min();
-	double	TotalArea		= 0.0f;
-
-	bool	bIsClosed		= true;
-};
-
 struct SVertex
 {
 	QVector3D Location;
@@ -32,6 +23,7 @@ class CGeometryObject : public QObject
 	Q_OBJECT
 	friend class CMeshInitializer;
 	friend class CMeshAnalyzer;
+	friend class CMeshSubdivider;
 
 public:
 	CGeometryObject();
@@ -47,7 +39,11 @@ public:
 	STriangle	GetTriangle(qsizetype triangleIndex) const;
 	qsizetype	GetTriangleVertexIndex(qsizetype triangleIndex, qsizetype vertexNum) const;
 
-	SMeshStats	GetStats() const;
+	double		GetMinTriangleArea() const;
+	double		GetMaxTriangleArea() const;
+	double		GetTotalArea() const;
+
+	bool		IsClosed() const;
 
 signals:
 	void		OnRecalculated();
@@ -76,8 +72,12 @@ public slots:
 private:
 	bool		bRecalculating = false;
 	QJsonObject	RawData;
-	SMeshStats	MeshStats;
 	CDCEL		EdgeList;
+
+	double		MinTriangleArea	= std::numeric_limits<double>().max();
+	double		MaxTriangleArea	= std::numeric_limits<double>().min();
+	double		TotalArea		= 0.0f;
+	bool		bIsClosed		= true;
 
 	QMutex					Mutex;
 	QSet<class QObject*>	Workers;

@@ -132,4 +132,6 @@ using TDCEL_EdgePtr	= class CDCEL_Edge*;
 using TDCEL_FacePtr	= class CDCEL_Face*;
 using TDCEL_VertPtr	= class CDCEL_Vertex*;
 
+using TDCEL_VertConstPtr	= const class CDCEL_Vertex*;
+
 #endif // DCEL_DATATYPES_H

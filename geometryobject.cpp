@@ -13,11 +13,15 @@ CGeometryObject::CGeometryObject()
 
 void CGeometryObject::Init(const QByteArray &jsonByteArr, TPromise callback)
 {
-	connect(this, &CGeometryObject::OnRecalculated, callback);
-
-	RawData		= QJsonDocument::fromJson(jsonByteArr).object();
-	MeshStats	= SMeshStats();
 	EdgeList.Clear();
+	RawData		= QJsonDocument::fromJson(jsonByteArr).object();
+
+	MinTriangleArea	= std::numeric_limits<double>().max();
+	MaxTriangleArea	= std::numeric_limits<double>().min();
+	TotalArea		= 0.0f;
+	bIsClosed		= true;
+
+	connect(this, &CGeometryObject::OnRecalculated, callback);
 
 	this->Recalculate();
 }
@@ -42,8 +46,9 @@ qsizetype CGeometryObject::GetVerticesCount() const
 SVertex CGeometryObject::GetVertex(qsizetype vertexIndex) const
 {
 	SVertex result;
-	result.Location = EdgeList.GetVertex(vertexIndex)->Get();
-	result.Normal	= EdgeList.GetVertexNormal(vertexIndex);
+	TDCEL_VertPtr vertex = EdgeList.GetVertex(vertexIndex);
+	result.Location = vertex->Get();
+	result.Normal	= vertex->GetNormal();
 	return result;
 }
 
@@ -74,9 +79,24 @@ qsizetype CGeometryObject::GetTriangleVertexIndex(qsizetype triangleIndex, qsize
 	return result;
 }
 
-SMeshStats CGeometryObject::GetStats() const
+double CGeometryObject::GetMinTriangleArea() const
 {
-	return this->MeshStats;
+	return MinTriangleArea;
+}
+
+double CGeometryObject::GetMaxTriangleArea() const
+{
+	return MaxTriangleArea;
+}
+
+double CGeometryObject::GetTotalArea() const
+{
+	return TotalArea;
+}
+
+bool CGeometryObject::IsClosed() const
+{
+	return bIsClosed;
 }
 
 QJsonObject CGeometryObject::GetRawData() const

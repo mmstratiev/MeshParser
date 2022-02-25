@@ -10,31 +10,31 @@ CVertexFacesIterator::CVertexFacesIterator(TDCEL_VertPtr v)
 
 void CVertexFacesIterator::operator++()
 {
-	if (Edge == Vertex->Edge())
+	if (bBegun && Edge == Vertex->Edge())
 	{
 		Edge = nullptr;
 	}
 	else
 	{
-		TDCEL_EdgePtr twin = this->GetNextTwin();
-		if(twin)
+		Edge = this->GetAdjacentEdge();
+		if(!Edge)
 		{
-			Edge = twin->Next();
-		}
-		else if(!bFoundBoundary)
-		{
-			// found boundary for this direction, reset and start iterating in the opposite direction
-			bFoundBoundary = true;
-			bClockwise = !bClockwise;
-			this->Reset();
-			this->operator++();
-		}
-		else
-		{
-			// found boundary for this direction also, all faces are now iterated, end iterator
-			Edge = nullptr;
+			if(!bFoundBoundary)
+			{
+				// found boundary for this direction, reset and start iterating in the opposite direction
+				bFoundBoundary = true;
+				bClockwise = !bClockwise;
+				this->Reset();
+				this->operator++();
+			}
+			else
+			{
+				// found boundary for this direction also, all faces are now iterated, end iterator
+				Edge = nullptr;
+			}
 		}
 	}
+	bBegun = true;
 }
 
 TDCEL_FacePtr CVertexFacesIterator::operator*()
@@ -55,18 +55,19 @@ bool CVertexFacesIterator::End()
 void CVertexFacesIterator::Reset()
 {
 	Edge = Vertex->Edge();
+	bBegun = false;
 }
 
-TDCEL_EdgePtr CVertexFacesIterator::GetNextTwin()
+TDCEL_EdgePtr CVertexFacesIterator::GetAdjacentEdge()
 {
 	TDCEL_EdgePtr result;
 	if(bClockwise)
 	{
-		result = Edge->Twin();
+		result = Edge->AdjacentCW();
 	}
 	else
 	{
-		result = Edge->Prev()->Twin();
+		result = Edge->AdjacentCCW();
 	}
 	return result;
 }

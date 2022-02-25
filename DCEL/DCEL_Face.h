@@ -2,6 +2,7 @@
 #define DCEL_FACE_H
 
 #include "DCEL_Datatypes.h"
+#include "Iterators/FaceEdgesIterator.h"
 
 class CDCEL_Face
 {
@@ -12,10 +13,12 @@ public:
 	TDCEL_EdgePtr Edge() const;
 	void SetEdge(TDCEL_EdgePtr newEdge);
 
+	CFaceEdgesIterator GetFaceEdgesIterator();
+
 private:
 	TDCEL_FaceID	ID = 0;
 
-	TDCEL_EdgePtr	mEdge;
+	TDCEL_EdgePtr	mEdge = nullptr;
 };
 
 #endif // DCEL_FACE_H

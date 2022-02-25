@@ -1,4 +1,5 @@
 #include "DCEL.h"
+#include <QDebug>
 
 CDCEL::CDCEL() {}
 
@@ -9,36 +10,7 @@ void CDCEL::Clear()
 	Faces.clear();
 }
 
-TDCEL_EdgePtr CDCEL::AddEdge(TDCEL_EdgeID ID, TDCEL_VertPtr origin, TDCEL_EdgePtr next, TDCEL_EdgePtr prev, TDCEL_FacePtr face)
-{
-	TDCEL_EdgePtr result;
-
-	auto edgeIt = Edges.find(ID);
-	if(edgeIt == Edges.end())
-	{
-		auto insertIt = Edges.insert({ ID, std::make_unique<CDCEL_Edge>(ID) });
-		result = insertIt.first->second.get();
-	}
-	else
-	{
-		result = edgeIt->second.get();
-	}
-
-	auto twinIt = Edges.find(ID.GetTwin());
-	if(twinIt != Edges.end())
-	{
-		twinIt->second->SetTwin(result);;
-		result->SetTwin(twinIt->second.get());
-	}
-
-	result->SetOrigin(origin);
-	result->SetNext(next);
-	result->SetPrev(prev);
-	result->SetFace(face);
-	return result;
-}
-
-TDCEL_VertPtr CDCEL::AddVertex(TDCEL_VertID ID, QVector3D vertex, TDCEL_EdgePtr halfEdge)
+TDCEL_VertPtr CDCEL::AddVertex(TDCEL_VertID ID, QVector3D vertex)
 {
 	TDCEL_VertPtr result;
 
@@ -54,27 +26,54 @@ TDCEL_VertPtr CDCEL::AddVertex(TDCEL_VertID ID, QVector3D vertex, TDCEL_EdgePtr 
 	}
 
 	result->SetVertex(vertex);
-	result->SetEdge(halfEdge);
 	return result;
 }
 
-TDCEL_FacePtr CDCEL::AddFace(TDCEL_FaceID ID, TDCEL_EdgePtr halfEdge)
+TDCEL_FacePtr CDCEL::Connect(TDCEL_VertID vert1Id, TDCEL_VertID vert2Id, TDCEL_VertID vert3Id, TDCEL_FaceID newFaceId)
 {
-	TDCEL_FacePtr result;
+	TDCEL_VertPtr vert1 = this->GetVertex(vert1Id);
+	TDCEL_VertPtr vert2 = this->GetVertex(vert2Id);
+	TDCEL_VertPtr vert3 = this->GetVertex(vert3Id);
 
-	auto faceIt = Faces.find(ID);
-	if(faceIt == Faces.end())
-	{
-		auto insertIt = Faces.insert({ ID, std::make_unique<CDCEL_Face>(ID) });
-		result = insertIt.first->second.get();
-	}
-	else
-	{
-		result = faceIt->second.get();
-	}
+	TDCEL_EdgeID edge1ID(vert1Id, vert2Id);
+	TDCEL_EdgePtr edge1Ptr = this->AddEdge(edge1ID);
 
-	result->SetEdge(halfEdge);
-	return result;
+	TDCEL_EdgeID edge2ID(vert2Id, vert3Id);
+	TDCEL_EdgePtr edge2Ptr = this->AddEdge(edge2ID);
+
+	TDCEL_EdgeID edge3ID(vert3Id, vert1Id);
+	TDCEL_EdgePtr edge3Ptr = this->AddEdge(edge3ID);
+
+	TDCEL_FaceID faceID = newFaceId;
+	TDCEL_FacePtr facePtr = this->AddFace(faceID);
+
+	vert1->SetEdge(edge1Ptr);
+	vert2->SetEdge(edge2Ptr);
+	vert3->SetEdge(edge3Ptr);
+
+	facePtr->SetEdge(edge1Ptr);
+
+	edge1Ptr->SetNext(edge2Ptr);
+	edge1Ptr->SetPrev(edge3Ptr);
+	edge1Ptr->SetOrigin(vert1);
+	edge1Ptr->SetFace(facePtr);
+
+	edge2Ptr->SetNext(edge3Ptr);
+	edge2Ptr->SetPrev(edge1Ptr);
+	edge2Ptr->SetOrigin(vert2);
+	edge2Ptr->SetFace(facePtr);
+
+	edge3Ptr->SetNext(edge1Ptr);
+	edge3Ptr->SetPrev(edge2Ptr);
+	edge3Ptr->SetOrigin(vert3);
+	edge3Ptr->SetFace(facePtr);
+
+	return facePtr;
+}
+
+TDCEL_FacePtr CDCEL::Connect(TDCEL_VertID vert1, TDCEL_VertID vert2, TDCEL_VertID vert3)
+{
+	return this->Connect(vert1, vert2, vert3, Faces.size());
 }
 
 qsizetype CDCEL::GetEdgesCount() const
@@ -113,63 +112,6 @@ TDCEL_VertPtr CDCEL::GetVertex(TDCEL_VertID Id) const
 	return result;
 }
 
-QVector3D CDCEL::GetVertexNormal(TDCEL_VertID Id) const
-{
-	QVector3D result;
-	TDCEL_VertPtr vertex = this->GetVertex(Id);
-	if(!vertex) return result;
-
-	CVertexFacesIterator it = vertex->GetAdjacentFacesIterator();
-	do
-	{
-		STriangle triangle = (*it)->Get();
-		result += triangle.GetNormal();
-		++it;
-	} while(!it.End());
-
-	//auto iterateAdjacentTris = [&] (TDCEL_EdgePtr start, bool clockwiseTraversal) -> bool
-	//{
-	//	TDCEL_EdgePtr currentEdge = vertex->Edge;
-	//	do
-	//	{
-	//		if(currentEdge->Origin == vertex)
-	//		{
-	//			STriangle triangle = currentEdge->Face->Get();
-	//			if(triangle.IsDegenerate())
-	//			{
-	//				return false;
-	//			}
-	//			result += triangle.GetNormal();
-
-	//			// go back to triangle on the left
-	//			if(!clockwiseTraversal)
-	//			{
-	//				currentEdge = currentEdge->Prev;
-	//			}
-	//			currentEdge = currentEdge->Twin;
-
-	//			if(!currentEdge) // non-manifold/open mesh
-	//			{
-	//				return false;
-	//			}
-	//		}
-	//		else
-	//		{
-	//			currentEdge = currentEdge->Next;
-	//		}
-	//	} while(currentEdge != start);
-
-	//	return true;
-	//};
-
-	//if(!iterateAdjacentTris(vertex->Edge, true))
-	//{
-	//	iterateAdjacentTris(vertex->Edge, false);
-	//}
-
-	return result.normalized();
-}
-
 qsizetype CDCEL::GetFacesCount() const
 {
 	return Faces.size();
@@ -183,6 +125,49 @@ TDCEL_FacePtr CDCEL::GetFace(TDCEL_FaceID Id) const
 	if(faceIt != Faces.end())
 	{
 		result = faceIt->second.get();
+	}
+
+	return result;
+}
+
+TDCEL_FacePtr CDCEL::AddFace(TDCEL_FaceID ID)
+{
+	TDCEL_FacePtr result;
+
+	auto faceIt = Faces.find(ID);
+	if(faceIt == Faces.end())
+	{
+		auto insertIt = Faces.insert({ ID, std::make_unique<CDCEL_Face>(ID) });
+		result = insertIt.first->second.get();
+	}
+	else
+	{
+		result = faceIt->second.get();
+	}
+
+	return result;
+}
+
+TDCEL_EdgePtr CDCEL::AddEdge(TDCEL_EdgeID ID)
+{
+	TDCEL_EdgePtr result;
+
+	auto edgeIt = Edges.find(ID);
+	if(edgeIt == Edges.end())
+	{
+		auto insertIt = Edges.insert({ ID, std::make_unique<CDCEL_Edge>(ID) });
+		result = insertIt.first->second.get();
+	}
+	else
+	{
+		result = edgeIt->second.get();
+	}
+
+	auto twinIt = Edges.find(ID.GetTwin());
+	if(twinIt != Edges.end())
+	{
+		twinIt->second->SetTwin(result);;
+		result->SetTwin(twinIt->second.get());
 	}
 
 	return result;

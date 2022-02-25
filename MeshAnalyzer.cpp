@@ -13,12 +13,12 @@ CMeshAnalyzer::CMeshAnalyzer(CGeometryObject& inOutObject, qsizetype beginIndex,
 	, BeginIndex(beginIndex)
 	, EndIndex(endIndex)
 {
-	qInfo() << "Created" << this << QThread::currentThread();
+	//qInfo() << "Created" << this << QThread::currentThread();
 }
 
 CMeshAnalyzer::~CMeshAnalyzer()
 {
-	qInfo() << "Destroyed" << this << QThread::currentThread();
+	//qInfo() << "Destroyed" << this << QThread::currentThread();
 
 }
 
@@ -26,8 +26,7 @@ void CMeshAnalyzer::Work()
 {
 	for(int triangleIndex = BeginIndex; triangleIndex < EndIndex; triangleIndex++)
 	{
-		QMutexLocker locker(&GeometryObject.Mutex);
-		if(!GeometryObject.MeshStats.bIsClosed)
+		if(!GeometryObject.IsClosed())
 		{
 			break;
 		}
@@ -36,12 +35,14 @@ void CMeshAnalyzer::Work()
 		TDCEL_FacePtr faceToCheck = GeometryObject.EdgeList.GetFace(triangleIndex);
 		if(faceToCheck)
 		{
+			QMutexLocker locker(&GeometryObject.Mutex);
+
 			TDCEL_EdgePtr currentEdge = faceToCheck->Edge();
 			do
 			{
-				GeometryObject.MeshStats.bIsClosed = currentEdge->Twin();
+				GeometryObject.bIsClosed = currentEdge->Twin();
 				currentEdge = currentEdge->Next();
-			} while(currentEdge != faceToCheck->Edge() && GeometryObject.MeshStats.bIsClosed);
+			} while(currentEdge != faceToCheck->Edge() && GeometryObject.bIsClosed);
 		}
 	//	qInfo() << "Work" << this << QThread::currentThread();
 	}
@@ -50,11 +51,11 @@ void CMeshAnalyzer::Work()
 void CMeshAnalyzer::run()
 {
 	// Starting the thread
-	qInfo() << "Starting" << this << QThread::currentThread();
+	//qInfo() << "Starting" << this << QThread::currentThread();
 
 	this->Work();
 
-	qInfo() << "Finishing" << this << QThread::currentThread();
+	//qInfo() << "Finishing" << this << QThread::currentThread();
 	emit Finished();
 
 	// todo: remove auto deletion and this sleep
