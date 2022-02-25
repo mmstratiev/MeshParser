@@ -1,6 +1,7 @@
 #include "GeometryObject.h"
 #include "MeshReader.h"
 #include "MeshAnalyzer.h"
+#include "MeshSubdividerr.h"
 
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -15,12 +16,6 @@ CGeometryObject::CGeometryObject()
 void CGeometryObject::Init(const QByteArray &jsonByteArr)
 {
 	EdgeList.Clear();
-
-	MinTriangleArea	= std::numeric_limits<double>().max();
-	MaxTriangleArea	= std::numeric_limits<double>().min();
-	TotalArea		= 0.0f;
-	bIsClosed		= true;
-
 	this->Initialize(jsonByteArr);
 }
 
@@ -32,12 +27,12 @@ void CGeometryObject::Init(CDCEL& edgeList)
 
 bool CGeometryObject::IsInitialized() const
 {
-	return EdgeList.GetVerticesCount() > 0;
+	return EdgeList.GetVerticesCount() > 0 && State == EState::Idle;
 }
 
 void CGeometryObject::WaitForIdle(TOnIdleCallback callback) const
 {
-	if(State == EState::Idle)
+	if(State != EState::Idle)
 	{
 		connect(this, &CGeometryObject::Idled, callback);
 	}
@@ -116,6 +111,52 @@ bool CGeometryObject::IsClosed() const
 	return bIsClosed;
 }
 
+void CGeometryObject::Subdivide()
+{
+	this->SetState(EState::Initializing);
+
+	CMeshSubdivider *worker = new CMeshSubdivider(*this, 0, 0);
+	worker->setObjectName("SubdividerWorker_" + QString::number(0));
+	worker->setAutoDelete(true);
+
+	Workers.insert(worker);
+	connect(worker, &CMeshSubdivider::Finished, this, &CGeometryObject::MeshInitializerFinished, Qt::QueuedConnection);
+
+	QThreadPool::globalInstance()->start(worker);
+
+	//// We want to use ALL available threads
+	//int maxThreadCount	= QThreadPool::globalInstance()->maxThreadCount();
+
+	//qsizetype trianglesCount		= this->GetTrianglesCount();
+	//qsizetype trianglesPerThread	= trianglesCount / maxThreadCount;
+	//qsizetype remainder				= trianglesCount % maxThreadCount;
+
+	//qsizetype lastEndIndex			= 0;
+	//for(int i = 0; i < maxThreadCount; i++)
+	//{
+	//	// remainder can never be more than the divisor(num of threads), so this is a safe and efficent way to distribute triangles
+	//	qsizetype trianglesForThread = trianglesPerThread;
+	//	if(remainder > 0)
+	//	{
+	//		trianglesForThread++;
+	//		remainder--;
+	//	}
+
+	//	qsizetype beginIndex	= lastEndIndex;
+	//	qsizetype endIndex		= beginIndex + trianglesForThread;
+	//	lastEndIndex			= endIndex;
+
+	//	CMeshSubdivider *worker = new CMeshSubdivider(*this, beginIndex, endIndex);
+	//	worker->setObjectName("SubdividerWorker_" + QString::number(i));
+	//	worker->setAutoDelete(true);
+
+	//	Workers.insert(worker);
+	//	connect(worker, &CMeshSubdivider::Finished, this, &CGeometryObject::MeshInitializerFinished, Qt::QueuedConnection);
+
+	//	QThreadPool::globalInstance()->start(worker);
+	//}
+}
+
 void CGeometryObject::SetState(EState newState)
 {
 	State = newState;
@@ -165,6 +206,7 @@ void CGeometryObject::Initialize(const QByteArray& rawData)
 void CGeometryObject::Analyze()
 {
 	this->SetState(EState::Analyzing);
+	this->ClearMeshDetails();
 
 	// We want to use ALL available threads
 	int maxThreadCount	= QThreadPool::globalInstance()->maxThreadCount();
@@ -199,17 +241,12 @@ void CGeometryObject::Analyze()
 	}
 }
 
-void CGeometryObject::OnStateChanged(EState newState)
+void CGeometryObject::ClearMeshDetails()
 {
-	switch (newState)
-	{
-	case CGeometryObject::EState::Initializing:
-		break;
-	case CGeometryObject::EState::Analyzing:
-		break;
-	case CGeometryObject::EState::Idle:
-		break;
-	}
+	MinTriangleArea	= std::numeric_limits<double>().max();
+	MaxTriangleArea	= std::numeric_limits<double>().min();
+	TotalArea		= 0.0f;
+	bIsClosed		= true;
 }
 
 void CGeometryObject::MeshInitializerFinished()

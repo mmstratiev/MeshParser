@@ -16,8 +16,6 @@ public:
 	void			Reset();
 
 private:
-	bool			bBegun	= false;
-
 	TDCEL_FacePtr	Face	= nullptr;
 	TDCEL_EdgePtr	Edge	= nullptr;
 

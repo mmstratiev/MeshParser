@@ -9,7 +9,7 @@ CFaceEdgesIterator::CFaceEdgesIterator(TDCEL_FacePtr face)
 
 void CFaceEdgesIterator::operator++()
 {
-	if (bBegun && Edge == Face->Edge())
+	if (Edge->Next() == Face->Edge())
 	{
 		Edge = nullptr;
 	}
@@ -17,7 +17,6 @@ void CFaceEdgesIterator::operator++()
 	{
 		Edge = Edge->Next();
 	}
-	bBegun = false;
 }
 
 TDCEL_EdgePtr CFaceEdgesIterator::operator*()
@@ -38,5 +37,4 @@ bool CFaceEdgesIterator::End()
 void CFaceEdgesIterator::Reset()
 {
 	Edge = Face->Edge();
-	bBegun = false;
 }

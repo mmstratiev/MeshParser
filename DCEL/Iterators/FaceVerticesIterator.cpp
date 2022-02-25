@@ -21,7 +21,7 @@ void CFaceVerticesIterator::operator++()
 {
 	if(!Edge) return;
 
-	if (bBegun && Edge == Face->Edge())
+	if (Edge->Next() == Face->Edge())
 	{
 		Edge = nullptr;
 	}
@@ -29,7 +29,6 @@ void CFaceVerticesIterator::operator++()
 	{
 		Edge = Edge->Next();
 	}
-	bBegun = false;
 }
 
 TDCEL_VertPtr CFaceVerticesIterator::operator*()
@@ -50,5 +49,4 @@ bool CFaceVerticesIterator::End()
 void CFaceVerticesIterator::Reset()
 {
 	Edge = Face->Edge();
-	bBegun = false;
 }

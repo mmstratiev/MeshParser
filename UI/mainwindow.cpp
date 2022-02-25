@@ -47,6 +47,8 @@ void MainWindow::on_FileChooseBtn_clicked()
 
 void MainWindow::on_ViewNormalsBtn_clicked()
 {
+	if(!GeometryObject.IsInitialized()) return;
+
 	DlgVertexNormals = new CDlgVertexNormals(this);
 	DlgVertexNormals->SetGeometryObject(&GeometryObject);
 	DlgVertexNormals->setModal(true);
@@ -60,6 +62,7 @@ void MainWindow::OnObjectStateChanged(CGeometryObject::EState newState)
 		case CGeometryObject::EState::Initializing:
 		case CGeometryObject::EState::Analyzing:
 		{
+			ui->TriCountLabel->setText("Calculating...");
 			ui->MinTriAreaLabel->setText("Calculating...");
 			ui->MaxTriAreaLabel->setText("Calculating...");
 			ui->AvgTriAreaLabel->setText("Calculating...");
@@ -68,6 +71,7 @@ void MainWindow::OnObjectStateChanged(CGeometryObject::EState newState)
 		}
 		case CGeometryObject::EState::Idle:
 		{
+			ui->TriCountLabel->setText(QString::number(GeometryObject.GetTrianglesCount()));
 			ui->MinTriAreaLabel->setText(QString::number(GeometryObject.GetMinTriangleArea()));
 			ui->MaxTriAreaLabel->setText(QString::number(GeometryObject.GetMaxTriangleArea()));
 			ui->AvgTriAreaLabel->setText(QString::number(GeometryObject.GetTotalArea() / GeometryObject.GetTrianglesCount()));
@@ -136,6 +140,8 @@ void MainWindow::on_ExportBtn_clicked()
 
 void MainWindow::on_SubdivideBtn_clicked()
 {
+	if(!GeometryObject.IsInitialized()) return;
 
+	GeometryObject.Subdivide();
 }
 

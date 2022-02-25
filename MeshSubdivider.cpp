@@ -1,4 +1,5 @@
 #include "MeshSubdividerr.h"
+#include <QThread>
 
 CMeshSubdivider::CMeshSubdivider(CGeometryObject &inOutObject, qsizetype beginIndex, qsizetype endIndex, QObject *parent)
 	: QObject{parent}
@@ -11,7 +12,17 @@ CMeshSubdivider::CMeshSubdivider(CGeometryObject &inOutObject, qsizetype beginIn
 
 void CMeshSubdivider::run()
 {
+	// Starting the thread
+	//qInfo() << "Starting" << this << QThread::currentThread();
 
+	this->Work();
+
+	//qInfo() << "Finishing" << this << QThread::currentThread();
+	emit Finished();
+
+	// todo: remove auto deletion and this sleep
+	QThread::currentThread()->msleep(100);
+	// Finishing the thread
 }
 
 CDCEL CMeshSubdivider::GetResult()
@@ -29,7 +40,7 @@ void CMeshSubdivider::Work()
 	for(size_t faceIndex = 0; faceIndex < facesCount; faceIndex++)
 	{
 		CFaceEdgesIterator edgeIt = Source.GetFace(faceIndex)->GetFaceEdgesIterator();
-		do
+		while(!edgeIt.End())
 		{
 			// 1. Create even(old) verts
 			TDCEL_VertPtr origVert = (*edgeIt)->Origin();
@@ -53,12 +64,13 @@ void CMeshSubdivider::Work()
 
 				EdgeToVerts[origEdgeID] = Destination.AddVertex(oddVertIndex++, newVertLoc)->GetID();
 			}
-		} while(!edgeIt.End());
+			++edgeIt;
+		}
 
-		// 3. Connect even and odd verts to from outer triangles
+		// 3. Connect even and odd verts to form outer triangles
 		edgeIt.Reset();
 
-		do
+		while(!edgeIt.End())
 		{
 			TDCEL_EdgeID origEdgeID = (*edgeIt)->GetID();
 			auto mapItCurr= EdgeToVerts.find(origEdgeID);
@@ -69,7 +81,8 @@ void CMeshSubdivider::Work()
 			TDCEL_VertID vertID3 = mapItPrev->second;
 
 			Destination.Connect(vertID1, vertID2, vertID3);
-		} while(!edgeIt.End());
+			++edgeIt;
+		}
 
 		// 4. Connect odd verts to form inner triangle
 		edgeIt.Reset();
@@ -79,4 +92,6 @@ void CMeshSubdivider::Work()
 
 		Destination.Connect(innerVertID1, innerVertID2, innerVertID3);
 	}
+
+	Source = Destination;
 }

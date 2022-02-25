@@ -41,7 +41,6 @@ public:
 	void		Init(CDCEL& edgeList);
 
 	bool		IsInitialized() const;
-
 	void		WaitForIdle(TOnIdleCallback callback) const;
 
 	qsizetype	GetVerticesCount() const;
@@ -57,6 +56,8 @@ public:
 
 	bool		IsClosed() const;
 
+	void		Subdivide();
+
 signals:
 	void		StateChanged(CGeometryObject::EState newState);
 	void		Idled();
@@ -67,9 +68,9 @@ private:
 	void		Initialize(const QByteArray &rawData);
 	void		Analyze();
 
-private slots:
-	void		OnStateChanged(CGeometryObject::EState newState);
+	void		ClearMeshDetails();
 
+private slots:
 	void		MeshInitializerFinished();
 	void		MeshAnalyzerFinished();
 
