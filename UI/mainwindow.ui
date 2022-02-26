@@ -258,11 +258,29 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
-          <widget class="QPushButton" name="SubdivideBtn">
-           <property name="text">
-            <string>Subdivide</string>
-           </property>
-          </widget>
+          <layout class="QHBoxLayout" name="horizontalLayout_12">
+           <item>
+            <widget class="QComboBox" name="SubdivideMethodCombo">
+             <item>
+              <property name="text">
+               <string>Simple Subdivide</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Loop Subdivide</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="SubdivideBtn">
+             <property name="text">
+              <string>Subdivide</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item>
           <widget class="QGroupBox" name="groupBox_2">

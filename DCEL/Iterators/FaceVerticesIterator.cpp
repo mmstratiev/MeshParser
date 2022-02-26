@@ -2,7 +2,7 @@
 #include "DCEL/DCEL_Face.h"
 #include "DCEL/DCEL_Edge.h"
 
-CFaceVerticesIterator::CFaceVerticesIterator(TDCEL_FacePtr face)
+CFaceVerticesIterator::CFaceVerticesIterator(const CDCEL_Face* face)
 	: Face(face)
 	, Edge(face->Edge())
 {}

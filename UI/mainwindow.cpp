@@ -152,7 +152,7 @@ void MainWindow::on_SubdivideBtn_clicked()
 {
 	if(!GeometryObject.IsInitialized()) return;
 
-	GeometryObject.Subdivide();
+	GeometryObject.Subdivide((ESubdivisionAlgorithm)ui->SubdivideMethodCombo->currentIndex());
 }
 
 

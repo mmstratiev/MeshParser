@@ -48,7 +48,7 @@ bool CDCEL_Vertex::IsBoundary() const
 	return result;
 }
 
-QVector3D CDCEL_Vertex::GetNormal()
+QVector3D CDCEL_Vertex::GetNormal() const
 {
 	QVector3D result;
 	CVertexFacesIterator it = this->GetAdjacentFacesIterator();
@@ -62,13 +62,37 @@ QVector3D CDCEL_Vertex::GetNormal()
 	return result.normalized();
 }
 
-//CVertexFacesIterator CDCEL_Vertex::GetAdjacentFacesIterator() const
-//{
-//	return CVertexFacesIterator(nullptr);//CVertexFacesIterator(this);
-//}
+std::vector<TDCEL_VertPtr> CDCEL_Vertex::GetAdjacentVertices() const
+{
+	std::vector<TDCEL_VertPtr> result;
+	CVertexVerticesIterator iterator(this, true);
+	while(!iterator.End())
+	{
+		result.push_back(*iterator);
+		++iterator;
+	}
 
-CVertexFacesIterator CDCEL_Vertex::GetAdjacentFacesIterator()
+	// CCW iteration now
+	if(this->IsBoundary())
+	{
+		iterator = CVertexVerticesIterator(this, false);
+		++iterator;
+		while(!iterator.End())
+		{
+			result.push_back(*iterator);
+			++iterator;
+		}
+	}
+	return result;
+}
+
+CVertexFacesIterator CDCEL_Vertex::GetAdjacentFacesIterator() const
 {
 	return CVertexFacesIterator(this);
+}
+
+CVertexVerticesIterator CDCEL_Vertex::GetAdjacentVerticesIterator(bool clockwise) const
+{
+	return CVertexVerticesIterator(this, clockwise);
 }
 

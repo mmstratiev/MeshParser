@@ -18,6 +18,8 @@ public:
 	TDCEL_EdgePtr AdjacentCW() const;
 	TDCEL_EdgePtr AdjacentCCW() const;
 
+	bool IsBoundary() const;
+
 	void SetOrigin(TDCEL_VertPtr newOrigin);
 	void SetTwin(TDCEL_EdgePtr newTwin);
 	void SetNext(TDCEL_EdgePtr newNext);

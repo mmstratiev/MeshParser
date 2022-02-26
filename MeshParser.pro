@@ -16,6 +16,7 @@ SOURCES += \
     DCEL/Iterators/FaceEdgesIterator.cpp \
     DCEL/Iterators/FaceVerticesIterator.cpp \
     DCEL/Iterators/VertexFacesIterator.cpp \
+    DCEL/Iterators/VertexVerticesIterator.cpp \
     GeometryObject.cpp \
     MeshAnalyzer.cpp \
     MeshReader.cpp \
@@ -37,10 +38,12 @@ HEADERS += \
     DCEL/Iterators/FaceEdgesIterator.h \
     DCEL/Iterators/FaceVerticesIterator.h \
     DCEL/Iterators/VertexFacesIterator.h \
+    DCEL/Iterators/VertexVerticesIterator.h \
+    Datatypes.h \
     GeometryObject.h \
     MeshAnalyzer.h \
     MeshReader.h \
-    MeshSubdividerr.h \
+    MeshSubdivider.h \
     OpenGL/Camera3D.h \
     OpenGL/InputManager.h \
     OpenGL/OpenGLWidget.h \

@@ -1,14 +1,13 @@
-#include "MeshSubdividerr.h"
+#include "MeshSubdivider.h"
 #include <QThread>
 
-CMeshSubdivider::CMeshSubdivider(CGeometryObject &inOutObject, qsizetype beginIndex, qsizetype endIndex, QObject *parent)
+CMeshSubdivider::CMeshSubdivider(CGeometryObject &inOutObject, ESubdivisionAlgorithm algo, qsizetype beginIndex, qsizetype endIndex, QObject *parent)
 	: QObject{parent}
 	, GeometryObject(inOutObject)
+	, Algo(algo)
 	, BeginIndex(beginIndex)
 	, EndIndex(endIndex)
-{
-
-}
+{}
 
 void CMeshSubdivider::run()
 {
@@ -32,38 +31,37 @@ CDCEL CMeshSubdivider::GetResult()
 
 void CMeshSubdivider::Work()
 {
-	CDCEL& Source = GeometryObject.EdgeList;
-
-	size_t oddVertIndex = Source.GetVerticesCount();
 	std::unordered_map<TDCEL_EdgeID, TDCEL_VertID, TDCEL_EdgeID> EdgeToVerts;
+
+	CDCEL& Source			= GeometryObject.EdgeList;
+	size_t lastOddVertID	= Source.GetVerticesCount();
+
 	size_t facesCount = Source.GetFacesCount();
 	for(size_t faceIndex = 0; faceIndex < facesCount; faceIndex++)
 	{
 		CFaceEdgesIterator edgeIt = Source.GetFace(faceIndex)->GetFaceEdgesIterator();
 		while(!edgeIt.End())
 		{
-			// 1. Create even(old) verts
+			// 1. Create even verts
 			TDCEL_VertPtr origVert = (*edgeIt)->Origin();
+			std::vector<TDCEL_VertPtr> adjacentVerts = origVert->GetAdjacentVertices();
 
-			// 1.1. calculate even vert position
-
-			Destination.AddVertex(origVert->GetID(), origVert->Get());
+			Destination.AddVertex(origVert->GetID(), this->GetEvenVertPosition(origVert));
 
 			// 2. Create odd(new) verts
 			TDCEL_EdgeID origEdgeID = (*edgeIt)->GetID();
 
-			auto mapIt = EdgeToVerts.find(origEdgeID);
+			auto mapIt = EdgeToVerts.find(origEdgeID.GetTwin());
 			if(mapIt == EdgeToVerts.end())
 			{
-				TDCEL_VertPtr origEdgeBegin = (*edgeIt)->Origin();
-				TDCEL_VertPtr origEdgeEnd	= (*edgeIt)->Next()->Origin();
-
-				QVector3D newVertLoc = (origEdgeBegin->Get() + origEdgeEnd->Get()) / 2;
-
-				// 2.1. calculate odd vert position
-
-				EdgeToVerts[origEdgeID] = Destination.AddVertex(oddVertIndex++, newVertLoc)->GetID();
+				EdgeToVerts[origEdgeID] = Destination.AddVertex(lastOddVertID++, this->GetOddVertPosition(*edgeIt))->GetID();
 			}
+			else
+			{
+				// Original twin edge was already subdivided, assign that vertex
+				EdgeToVerts[origEdgeID] = Destination.GetVertex(mapIt->second)->GetID();
+			}
+
 			++edgeIt;
 		}
 
@@ -94,4 +92,56 @@ void CMeshSubdivider::Work()
 	}
 
 	Source = Destination;
+}
+
+QVector3D CMeshSubdivider::GetEvenVertPosition(TDCEL_VertPtr originalVert) const
+{
+	if(Algo == ESubdivisionAlgorithm::Simple) return originalVert->Get();
+
+	QVector3D result;;
+	std::vector<TDCEL_VertPtr> adjacentVerts = originalVert->GetAdjacentVertices();
+
+	if(originalVert->IsBoundary())
+	{
+		QVector3D adjacentSum = adjacentVerts[0]->Get() + adjacentVerts[adjacentVerts.size()-1]->Get();
+		result = originalVert->Get() * 0.75f + adjacentSum * 0.125f;
+	}
+	else
+	{
+		qsizetype adjacentVertsCount = adjacentVerts.size();
+		QVector3D adjacentVertsSum;
+		for(TDCEL_VertPtr adjacentVert : adjacentVerts)
+		{
+			adjacentVertsSum += adjacentVert->Get();
+		}
+
+		float alpha = 0.1875f;
+		if(adjacentVertsCount > 3)
+		{
+			alpha = (0.625f - pow(0.375f + (0.25f * std::cos(2 * M_PI / adjacentVertsCount)), 2)) / adjacentVertsCount;
+		}
+
+		result = originalVert->Get() * (1 - adjacentVertsCount * alpha) + adjacentVertsSum * alpha;
+	}
+
+	return result;
+}
+
+QVector3D CMeshSubdivider::GetOddVertPosition(TDCEL_EdgePtr originalEdge) const
+{
+	QVector3D result;
+
+	TDCEL_VertPtr origEdgeBegin = originalEdge->Origin();
+	TDCEL_VertPtr origEdgeEnd	= originalEdge->Next()->Origin();
+
+	if(originalEdge->IsBoundary() || Algo == ESubdivisionAlgorithm::Simple)
+	{
+		result = (origEdgeBegin->Get() + origEdgeEnd->Get()) / 2.0f;
+	}
+	else
+	{
+		result = (origEdgeBegin->Get() + origEdgeEnd->Get()) * 0.375f
+				 + (originalEdge->Prev()->Origin()->Get() + originalEdge->Twin()->Prev()->Origin()->Get()) * 0.125f;
+	}
+	return result;
 }

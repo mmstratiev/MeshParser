@@ -22,12 +22,12 @@ void CDCEL_Face::SetEdge(TDCEL_EdgePtr newEdge)
 	mEdge = newEdge;
 }
 
-CFaceEdgesIterator CDCEL_Face::GetFaceEdgesIterator()
+CFaceEdgesIterator CDCEL_Face::GetFaceEdgesIterator() const
 {
 	return CFaceEdgesIterator(this);
 }
 
-CFaceVerticesIterator CDCEL_Face::GetFaceVerticesIterator()
+CFaceVerticesIterator CDCEL_Face::GetFaceVerticesIterator() const
 {
 	return CFaceVerticesIterator(this);
 }

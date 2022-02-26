@@ -6,7 +6,7 @@
 class CFaceVerticesIterator
 {
 public:
-	CFaceVerticesIterator(TDCEL_FacePtr face);
+	CFaceVerticesIterator(const CDCEL_Face* face);
 
 	CFaceVerticesIterator&	operator+=(const int& increment);
 	void					operator++();
@@ -17,8 +17,8 @@ public:
 	void			Reset();
 
 private:
-	TDCEL_FacePtr	Face	= nullptr;
-	TDCEL_EdgePtr	Edge	= nullptr;
+	const CDCEL_Face*	Face	= nullptr;
+	TDCEL_EdgePtr		Edge	= nullptr;
 };
 
 #endif // CFACEVERTICESITERATOR_H

@@ -52,6 +52,11 @@ TDCEL_EdgePtr CDCEL_Edge::AdjacentCCW() const
 	return this->Prev()->Twin();
 }
 
+bool CDCEL_Edge::IsBoundary() const
+{
+	return !this->Twin();
+}
+
 void CDCEL_Edge::SetOrigin(TDCEL_VertPtr newOrigin)
 {
 	mOrigin = newOrigin;

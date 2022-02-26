@@ -14,8 +14,8 @@ public:
 	TDCEL_EdgePtr	Edge() const;
 	void			SetEdge(TDCEL_EdgePtr newEdge);
 
-	CFaceEdgesIterator		GetFaceEdgesIterator();
-	CFaceVerticesIterator	GetFaceVerticesIterator();
+	CFaceEdgesIterator		GetFaceEdgesIterator() const;
+	CFaceVerticesIterator	GetFaceVerticesIterator() const;
 
 private:
 	TDCEL_FaceID	ID = 0;

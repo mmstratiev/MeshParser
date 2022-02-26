@@ -10,7 +10,7 @@ class CMeshSubdivider : public QObject, public QRunnable
 {
 	Q_OBJECT
 public:
-	explicit CMeshSubdivider(CGeometryObject& inOutObject, qsizetype beginIndex, qsizetype endIndex, QObject *parent = nullptr);
+	explicit CMeshSubdivider(CGeometryObject& inOutObject, ESubdivisionAlgorithm algo, qsizetype beginIndex, qsizetype endIndex, QObject *parent = nullptr);
 
 signals:
 	void Finished();
@@ -24,8 +24,12 @@ public:
 private:
 	void Work();
 
+	QVector3D GetEvenVertPosition(TDCEL_VertPtr originalVert) const;
+	QVector3D GetOddVertPosition(TDCEL_EdgePtr originalEdge) const;
+
 private:
 	CGeometryObject&		GeometryObject;
+	ESubdivisionAlgorithm	Algo;
 	qsizetype				BeginIndex	= 0;
 	qsizetype				EndIndex	= 0;
 	CDCEL					Destination;

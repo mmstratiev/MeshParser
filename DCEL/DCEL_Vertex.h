@@ -4,6 +4,7 @@
 #include <QVector3D>
 #include "DCEL_Datatypes.h"
 #include "Iterators/VertexFacesIterator.h"
+#include "Iterators/VertexVerticesIterator.h"
 
 class CDCEL_Vertex
 {
@@ -19,11 +20,12 @@ public:
 	void SetEdge(TDCEL_EdgePtr newEdge);
 
 	bool IsBoundary() const;
-	QVector3D GetNormal();
+	QVector3D GetNormal() const;
 
-	//CVertexFacesIterator GetAdjacentFacesIterator() const;
-	CVertexFacesIterator GetAdjacentFacesIterator();
+	std::vector<TDCEL_VertPtr> GetAdjacentVertices() const;
 
+	CVertexFacesIterator	GetAdjacentFacesIterator() const;
+	CVertexVerticesIterator GetAdjacentVerticesIterator(bool clockwise = true) const;
 
 private:
 	TDCEL_VertID	ID = 0;

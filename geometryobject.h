@@ -9,6 +9,7 @@
 
 #include "DCEL/DCEL.h"
 #include "OpenGL/Vertex.h"
+#include "Datatypes.h"
 
 class QByteArray;
 
@@ -57,7 +58,7 @@ public:
 
 	bool		IsClosed() const;
 
-	void		Subdivide();
+	void		Subdivide(ESubdivisionAlgorithm algo);
 
 	// OpenGL methods
 	void			BuildOpenGLVertexes();

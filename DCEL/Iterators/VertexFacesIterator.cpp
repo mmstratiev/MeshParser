@@ -2,7 +2,7 @@
 #include "DCEL/DCEL_Vertex.h"
 #include "DCEL/DCEL_Edge.h"
 
-CVertexFacesIterator::CVertexFacesIterator(TDCEL_VertPtr v)
+CVertexFacesIterator::CVertexFacesIterator(const CDCEL_Vertex* v)
 	: Vertex(v)
 	, Edge(v->Edge())
 {

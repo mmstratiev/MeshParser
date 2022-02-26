@@ -1,8 +1,7 @@
 #include "GeometryObject.h"
 #include "MeshReader.h"
 #include "MeshAnalyzer.h"
-#include "MeshSubdividerr.h"
-
+#include "MeshSubdivider.h"
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QThreadPool>
@@ -111,11 +110,11 @@ bool CGeometryObject::IsClosed() const
 	return bIsClosed;
 }
 
-void CGeometryObject::Subdivide()
+void CGeometryObject::Subdivide(ESubdivisionAlgorithm algo)
 {
 	this->SetState(EState::Initializing);
 
-	CMeshSubdivider *worker = new CMeshSubdivider(*this, 0, 0);
+	CMeshSubdivider *worker = new CMeshSubdivider(*this, algo, 0, 0);
 	worker->setObjectName("SubdividerWorker_" + QString::number(0));
 	worker->setAutoDelete(true);
 
