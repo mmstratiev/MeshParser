@@ -8,6 +8,7 @@
 #include <QSet>
 
 #include "DCEL/DCEL.h"
+#include "OpenGL/Vertex.h"
 
 class QByteArray;
 
@@ -58,6 +59,11 @@ public:
 
 	void		Subdivide();
 
+	// OpenGL methods
+	void			BuildOpenGLVertexes();
+	qsizetype		GetOpenGLVerticesCount() const;
+	CVertex*		GetOpenGLVerticesBegin();
+
 signals:
 	void		StateChanged(CGeometryObject::EState newState);
 	void		Idled();
@@ -68,7 +74,7 @@ private:
 	void		Initialize(const QByteArray &rawData);
 	void		Analyze();
 
-	void		ClearMeshDetails();
+	void		ClearMeshStats();
 
 private slots:
 	void		MeshInitializerFinished();
@@ -77,6 +83,8 @@ private slots:
 private:
 	EState		State = EState::Idle;
 	CDCEL		EdgeList;
+	std::vector<CVertex> OpenGLVertices;
+
 
 	double		MinTriangleArea	= std::numeric_limits<double>().max();
 	double		MaxTriangleArea	= std::numeric_limits<double>().min();

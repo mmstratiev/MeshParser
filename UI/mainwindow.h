@@ -25,10 +25,11 @@ public slots:
 private slots:	
 	void on_FileChooseBtn_clicked();
 	void on_ViewNormalsBtn_clicked();
-
 	void on_ExportBtn_clicked();
-
 	void on_SubdivideBtn_clicked();
+
+	void on_SmoothShadingRadio_toggled(bool checked);
+	void on_FlatShadingRadio_toggled(bool checked);
 
 private:
     Ui::MainWindow *ui;

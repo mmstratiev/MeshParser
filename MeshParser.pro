@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui opengl openglwidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -20,6 +20,10 @@ SOURCES += \
     MeshAnalyzer.cpp \
     MeshReader.cpp \
     MeshSubdivider.cpp \
+    OpenGL/Camera3D.cpp \
+    OpenGL/InputManager.cpp \
+    OpenGL/OpenGLWidget.cpp \
+    OpenGL/Vertex.cpp \
     UI/DlgVertexNormals.cpp \
     UI/mainwindow.cpp \
     main.cpp \
@@ -37,6 +41,10 @@ HEADERS += \
     MeshAnalyzer.h \
     MeshReader.h \
     MeshSubdividerr.h \
+    OpenGL/Camera3D.h \
+    OpenGL/InputManager.h \
+    OpenGL/OpenGLWidget.h \
+    OpenGL/Vertex.h \
     UI/DlgVertexNormals.h \
     UI/mainwindow.h \
 
@@ -53,3 +61,10 @@ CONFIG += embed_translations
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+DISTFILES += \
+    OpenGL/Shaders/simple.frag \
+    OpenGL/Shaders/simple.vert
+
+RESOURCES += \
+    resources.qrc

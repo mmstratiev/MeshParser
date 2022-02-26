@@ -12,6 +12,15 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 	connect(&GeometryObject, &CGeometryObject::StateChanged, this, &MainWindow::OnObjectStateChanged);
+
+	QSurfaceFormat format;
+	format.setRenderableType(QSurfaceFormat::OpenGL);
+	format.setProfile(QSurfaceFormat::CoreProfile);
+	format.setVersion(3, 3);
+
+	ui->OpenGLWidget->setFormat(format);
+	ui->OpenGLWidget->SetObjectToDraw(&GeometryObject);
+	ui->OpenGLWidget->SetShading(ui->SmoothShadingRadio->isChecked() ? EShading::Smooth : EShading::Flat);
 }
 
 MainWindow::~MainWindow()
@@ -76,6 +85,7 @@ void MainWindow::OnObjectStateChanged(CGeometryObject::EState newState)
 			ui->MaxTriAreaLabel->setText(QString::number(GeometryObject.GetMaxTriangleArea()));
 			ui->AvgTriAreaLabel->setText(QString::number(GeometryObject.GetTotalArea() / GeometryObject.GetTrianglesCount()));
 			ui->MeshType->setText(GeometryObject.IsClosed() ? "Closed" : "Open");
+			ui->OpenGLWidget->Refresh();
 			break;
 		}
 	}
@@ -143,5 +153,19 @@ void MainWindow::on_SubdivideBtn_clicked()
 	if(!GeometryObject.IsInitialized()) return;
 
 	GeometryObject.Subdivide();
+}
+
+
+void MainWindow::on_SmoothShadingRadio_toggled(bool checked)
+{
+	if(!checked) return;
+	ui->OpenGLWidget->SetShading(EShading::Smooth);
+}
+
+
+void MainWindow::on_FlatShadingRadio_toggled(bool checked)
+{
+	if(!checked) return;
+	ui->OpenGLWidget->SetShading(EShading::Flat);
 }
 

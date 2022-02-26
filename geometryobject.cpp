@@ -157,6 +157,46 @@ void CGeometryObject::Subdivide()
 	//}
 }
 
+void CGeometryObject::BuildOpenGLVertexes()
+{
+	OpenGLVertices.clear();
+	qsizetype trisCount = this->GetTrianglesCount();
+	for (qsizetype triangleID = 0; triangleID < trisCount ; triangleID++)
+	{
+		STriangle triangle;
+		if(this->GetTriangle(triangleID, triangle))
+		{
+			SVertex vertex;
+
+			this->GetVertex(this->GetTriangleVertID(triangleID, 0), vertex);
+			//CVertex vert1(QVector3D(vertex.Location.x(), vertex.Location.z(), vertex.Location.y()));
+			CVertex vert1(vertex.Location, triangle.GetNormal(), vertex.Normal);
+
+			this->GetVertex(this->GetTriangleVertID(triangleID, 1), vertex);
+			//CVertex vert2(QVector3D(vertex.Location.x(), vertex.Location.z(), vertex.Location.y()));
+			CVertex vert2(vertex.Location, triangle.GetNormal(), vertex.Normal);
+
+			this->GetVertex(this->GetTriangleVertID(triangleID, 2), vertex);
+			//CVertex vert3(QVector3D(vertex.Location.x(), vertex.Location.z(), vertex.Location.y()));
+			CVertex vert3(vertex.Location, triangle.GetNormal(), vertex.Normal);
+
+			OpenGLVertices.push_back(vert1);
+			OpenGLVertices.push_back(vert2);
+			OpenGLVertices.push_back(vert3);
+		}
+	}
+}
+
+qsizetype CGeometryObject::GetOpenGLVerticesCount() const
+{
+	return this->OpenGLVertices.size();
+}
+
+CVertex *CGeometryObject::GetOpenGLVerticesBegin()
+{
+	return &this->OpenGLVertices[0];
+}
+
 void CGeometryObject::SetState(EState newState)
 {
 	State = newState;
@@ -206,7 +246,7 @@ void CGeometryObject::Initialize(const QByteArray& rawData)
 void CGeometryObject::Analyze()
 {
 	this->SetState(EState::Analyzing);
-	this->ClearMeshDetails();
+	this->ClearMeshStats();
 
 	// We want to use ALL available threads
 	int maxThreadCount	= QThreadPool::globalInstance()->maxThreadCount();
@@ -241,7 +281,7 @@ void CGeometryObject::Analyze()
 	}
 }
 
-void CGeometryObject::ClearMeshDetails()
+void CGeometryObject::ClearMeshStats()
 {
 	MinTriangleArea	= std::numeric_limits<double>().max();
 	MaxTriangleArea	= std::numeric_limits<double>().min();
