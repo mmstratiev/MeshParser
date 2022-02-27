@@ -6,7 +6,7 @@
 class CVertexFacesIterator
 {
 public:
-	CVertexFacesIterator(const CDCEL_Vertex* v);
+	CVertexFacesIterator(const CDCEL_Vertex* v, bool clockwise = true);
 
 	void			operator++();
 	TDCEL_FacePtr	operator*();
@@ -19,11 +19,9 @@ private:
 	TDCEL_EdgePtr	GetAdjacentEdge();
 
 private:
-	bool					bBegun			= false;
-	bool					bFoundBoundary	= false;
-	bool					bClockwise		= true;
 	const CDCEL_Vertex*		Vertex			= nullptr;
 	TDCEL_EdgePtr			Edge			= nullptr;
+	bool					bClockwise		= true;
 
 };
 

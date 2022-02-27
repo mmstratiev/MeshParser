@@ -39,7 +39,10 @@ void CMeshSubdivider::Work()
 	size_t facesCount = Source.GetFacesCount();
 	for(size_t faceIndex = 0; faceIndex < facesCount; faceIndex++)
 	{
-		CFaceEdgesIterator edgeIt = Source.GetFace(faceIndex)->GetFaceEdgesIterator();
+		TDCEL_FacePtr currentFace = Source.GetFace(faceIndex);
+		if(!currentFace) continue;
+
+		CFaceEdgesIterator edgeIt = currentFace->GetFaceEdgesIterator();
 		while(!edgeIt.End())
 		{
 			// 1. Create even verts

@@ -10,6 +10,7 @@
 #include "DCEL/DCEL.h"
 #include "OpenGL/Vertex.h"
 #include "Datatypes.h"
+#include "AccelerationStructs/BoundingBox.h"
 
 class QByteArray;
 
@@ -52,6 +53,8 @@ public:
 	bool		GetTriangle(qsizetype triangleID, STriangle& outTriangle) const;
 	qsizetype	GetTriangleVertID(qsizetype triangleID, qsizetype vertIndex) const;
 
+	const CBoundingBox& GetBoundingBox() const;
+
 	double		GetMinTriangleArea() const;
 	double		GetMaxTriangleArea() const;
 	double		GetTotalArea() const;
@@ -75,7 +78,8 @@ private:
 	void		Initialize(const QByteArray &rawData);
 	void		Analyze();
 
-	void		ClearMeshStats();
+	void		ClearInitializedData();
+	void		ClearAnalyzedData();
 
 private slots:
 	void		MeshInitializerFinished();
@@ -86,11 +90,11 @@ private:
 	CDCEL		EdgeList;
 	std::vector<CVertex> OpenGLVertices;
 
-
-	double		MinTriangleArea	= std::numeric_limits<double>().max();
-	double		MaxTriangleArea	= std::numeric_limits<double>().min();
-	double		TotalArea		= 0.0f;
-	bool		bIsClosed		= true;
+	CBoundingBox	BoundingBox;
+	double			MinTriangleArea	= std::numeric_limits<double>().max();
+	double			MaxTriangleArea	= std::numeric_limits<double>().min();
+	double			TotalArea		= 0.0f;
+	bool			bIsClosed		= true;
 
 	QMutex					Mutex;
 	QSet<class QObject*>	Workers;

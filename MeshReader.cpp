@@ -3,6 +3,7 @@
 #include <QThread>
 #include <QMutexLocker>
 #include <QDebug>
+#include <QQuaternion>
 
 CMeshReader::CMeshReader(CGeometryObject& inOutObject, const QJsonObject& jsonDataObject, qsizetype beginIndex, qsizetype endIndex, QObject *parent)
 	: QObject{parent}
@@ -37,23 +38,31 @@ void CMeshReader::run()
 
 void CMeshReader::Work()
 {
-	//qInfo() << BeginIndex << EndIndex  << this;
 	for(int triangleIndex = BeginIndex; triangleIndex < EndIndex; triangleIndex++)
 	{		
-		// Skip degenerate triangles. They add no value to the object.
-		if(CMeshReader::GetTriangleRaw(DataObject, triangleIndex).IsDegenerate()) return;
+		QMutexLocker locker(&GeometryObject.Mutex);
+
+		// Cull degenerate triangles. They add no value to the object and impact performance.
+		STriangle triangle = CMeshReader::GetTriangleRaw(DataObject, triangleIndex);
+		if(triangle.IsDegenerate())
+		{
+			//qInfo() << "Degenerate" << triangleIndex << triangle.Vertices[0] << triangle.Vertices[1] << triangle.Vertices[2];
+			continue;
+		}
+
+		GeometryObject.BoundingBox.ExtendTo(triangle.Vertices[0]);
+		GeometryObject.BoundingBox.ExtendTo(triangle.Vertices[1]);
+		GeometryObject.BoundingBox.ExtendTo(triangle.Vertices[2]);
 
 		TDCEL_VertID vert1ID(CMeshReader::GetTriangleVertexIndexRaw(DataObject, triangleIndex, 0));
 		TDCEL_VertID vert2ID(CMeshReader::GetTriangleVertexIndexRaw(DataObject, triangleIndex, 1));
 		TDCEL_VertID vert3ID(CMeshReader::GetTriangleVertexIndexRaw(DataObject, triangleIndex, 2));
 
-		QMutexLocker locker(&GeometryObject.Mutex);
 		GeometryObject.EdgeList.AddVertex(vert1ID, CMeshReader::GetVertexRaw(DataObject, vert1ID));
 		GeometryObject.EdgeList.AddVertex(vert2ID, CMeshReader::GetVertexRaw(DataObject, vert2ID));
 		GeometryObject.EdgeList.AddVertex(vert3ID, CMeshReader::GetVertexRaw(DataObject, vert3ID));
 
-		GeometryObject.EdgeList.Connect(vert1ID, vert2ID, vert3ID, triangleIndex);
-	//	qInfo() << "Work" << this << QThread::currentThread();
+		GeometryObject.EdgeList.Connect(vert1ID, vert2ID, vert3ID);
 	}
 }
 

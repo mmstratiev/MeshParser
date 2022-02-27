@@ -155,6 +155,23 @@ void MainWindow::on_SubdivideBtn_clicked()
 	GeometryObject.Subdivide((ESubdivisionAlgorithm)ui->SubdivideMethodCombo->currentIndex());
 }
 
+void MainWindow::on_CheckPointBtn_clicked()
+{
+	if(!GeometryObject.IsInitialized()) return;
+
+	double x = ui->PtXBox->value();
+	double y = ui->PtYBox->value();
+	double z = ui->PtZBox->value();
+
+	if(GeometryObject.GetBoundingBox().IsPointInBox(QVector3D(x, y, z)))
+	{
+		ui->PointInMeshLabel->setText("Yes");
+	}
+	else
+	{
+		ui->PointInMeshLabel->setText("No");
+	}
+}
 
 void MainWindow::on_SmoothShadingRadio_toggled(bool checked)
 {

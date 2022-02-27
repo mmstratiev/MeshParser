@@ -1,6 +1,7 @@
 #include "DCEL_Vertex.h"
 #include "DCEL_Edge.h"
 #include "DCEL_Face.h"
+#include <QDebug>
 
 CDCEL_Vertex::CDCEL_Vertex(TDCEL_VertID id)
 	: ID(id)
@@ -51,13 +52,27 @@ bool CDCEL_Vertex::IsBoundary() const
 QVector3D CDCEL_Vertex::GetNormal() const
 {
 	QVector3D result;
-	CVertexFacesIterator it = this->GetAdjacentFacesIterator();
-	do
+
+	CVertexFacesIterator iterator(this, true);
+	while(!iterator.End())
 	{
-		STriangle triangle = (*it)->Get();
+		STriangle triangle = (*iterator)->Get();
 		result += triangle.GetNormal();
-		++it;
-	} while(!it.End());
+		++iterator;
+	}
+
+	// CCW iteration now
+	if(this->IsBoundary())
+	{
+		iterator = CVertexFacesIterator(this, false);
+		++iterator;
+		while(!iterator.End())
+		{
+			STriangle triangle = (*iterator)->Get();
+			result += triangle.GetNormal();
+			++iterator;
+		}
+	}
 
 	return result.normalized();
 }

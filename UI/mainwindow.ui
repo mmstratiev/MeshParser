@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1125</width>
-    <height>724</height>
+    <height>726</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -300,7 +300,11 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QDoubleSpinBox" name="doubleSpinBox"/>
+                 <widget class="QDoubleSpinBox" name="PtXBox">
+                  <property name="maximum">
+                   <double>99999.990000000005239</double>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
@@ -314,7 +318,11 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QDoubleSpinBox" name="doubleSpinBox_2"/>
+                 <widget class="QDoubleSpinBox" name="PtYBox">
+                  <property name="maximum">
+                   <double>99999.990000000005239</double>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
@@ -328,7 +336,11 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QDoubleSpinBox" name="doubleSpinBox_3"/>
+                 <widget class="QDoubleSpinBox" name="PtZBox">
+                  <property name="maximum">
+                   <double>99999.990000000005239</double>
+                  </property>
+                 </widget>
                 </item>
                 <item>
                  <spacer name="horizontalSpacer_3">
@@ -357,7 +369,7 @@
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_10">
               <item>
-               <widget class="QLabel" name="label_9">
+               <widget class="QLabel" name="PointInMeshLabel">
                 <property name="styleSheet">
                  <string notr="true">color: rgb(255, 0, 0);</string>
                 </property>

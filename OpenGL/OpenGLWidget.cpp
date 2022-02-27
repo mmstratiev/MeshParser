@@ -28,7 +28,7 @@ void COpenGLWidget::initializeGL()
 	connect(this, SIGNAL(frameSwapped()), this, SLOT(Update()));
 
 	// OpenGL
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	{

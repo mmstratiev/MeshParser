@@ -1,40 +1,22 @@
 #include "VertexFacesIterator.h"
 #include "DCEL/DCEL_Vertex.h"
 #include "DCEL/DCEL_Edge.h"
+#include <QDebug>
 
-CVertexFacesIterator::CVertexFacesIterator(const CDCEL_Vertex* v)
+CVertexFacesIterator::CVertexFacesIterator(const CDCEL_Vertex* v, bool clockwise)
 	: Vertex(v)
 	, Edge(v->Edge())
+	, bClockwise(clockwise)
 {
 }
 
 void CVertexFacesIterator::operator++()
 {
-	if (bBegun && Edge == Vertex->Edge())
+	Edge = this->GetAdjacentEdge();
+	if (Edge == Vertex->Edge())
 	{
 		Edge = nullptr;
 	}
-	else
-	{
-		Edge = this->GetAdjacentEdge();
-		if(!Edge)
-		{
-			if(!bFoundBoundary)
-			{
-				// found boundary for this direction, reset and start iterating in the opposite direction
-				bFoundBoundary = true;
-				bClockwise = !bClockwise;
-				this->Reset();
-				this->operator++();
-			}
-			else
-			{
-				// found boundary for this direction also, all faces are now iterated, end iterator
-				Edge = nullptr;
-			}
-		}
-	}
-	bBegun = true;
 }
 
 TDCEL_FacePtr CVertexFacesIterator::operator*()
@@ -55,7 +37,6 @@ bool CVertexFacesIterator::End()
 void CVertexFacesIterator::Reset()
 {
 	Edge = Vertex->Edge();
-	bBegun = false;
 }
 
 TDCEL_EdgePtr CVertexFacesIterator::GetAdjacentEdge()

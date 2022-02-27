@@ -7,6 +7,7 @@
 #include <QThreadPool>
 #include <QThread>
 #include <QMutexLocker>
+#include <QQuaternion>
 
 CGeometryObject::CGeometryObject()
 {
@@ -14,7 +15,6 @@ CGeometryObject::CGeometryObject()
 
 void CGeometryObject::Init(const QByteArray &jsonByteArr)
 {
-	EdgeList.Clear();
 	this->Initialize(jsonByteArr);
 }
 
@@ -88,6 +88,11 @@ qsizetype CGeometryObject::GetTriangleVertID(qsizetype triangleID, qsizetype ver
 		result = vertIt.Value()->GetID();
 	}
 	return result;
+}
+
+const CBoundingBox &CGeometryObject::GetBoundingBox() const
+{
+	return BoundingBox;
 }
 
 double CGeometryObject::GetMinTriangleArea() const
@@ -165,23 +170,28 @@ void CGeometryObject::BuildOpenGLVertexes()
 		STriangle triangle;
 		if(this->GetTriangle(triangleID, triangle))
 		{
+			auto flipZY = [](QVector3D in) -> QVector3D
+			{
+				return QQuaternion::fromEulerAngles(-90, 0, 180).rotatedVector(in);
+			};
 			SVertex vertex;
 
 			this->GetVertex(this->GetTriangleVertID(triangleID, 0), vertex);
-			//CVertex vert1(QVector3D(vertex.Location.x(), vertex.Location.z(), vertex.Location.y()));
-			CVertex vert1(vertex.Location, triangle.GetNormal(), vertex.Normal);
+			CVertex vert1(flipZY(vertex.Location), triangle.GetNormal(), vertex.Normal);
 
 			this->GetVertex(this->GetTriangleVertID(triangleID, 1), vertex);
-			//CVertex vert2(QVector3D(vertex.Location.x(), vertex.Location.z(), vertex.Location.y()));
-			CVertex vert2(vertex.Location, triangle.GetNormal(), vertex.Normal);
+			CVertex vert2(flipZY(vertex.Location), triangle.GetNormal(), vertex.Normal);
 
 			this->GetVertex(this->GetTriangleVertID(triangleID, 2), vertex);
-			//CVertex vert3(QVector3D(vertex.Location.x(), vertex.Location.z(), vertex.Location.y()));
-			CVertex vert3(vertex.Location, triangle.GetNormal(), vertex.Normal);
+			CVertex vert3(flipZY(vertex.Location), triangle.GetNormal(), vertex.Normal);
 
 			OpenGLVertices.push_back(vert1);
 			OpenGLVertices.push_back(vert2);
 			OpenGLVertices.push_back(vert3);
+		}
+		else
+		{
+			qInfo() << triangleID;
 		}
 	}
 }
@@ -207,6 +217,7 @@ void CGeometryObject::SetState(EState newState)
 void CGeometryObject::Initialize(const QByteArray& rawData)
 {
 	this->SetState(EState::Initializing);
+	this->ClearInitializedData();
 
 	// We want to use ALL available threads
 	int maxThreadCount	= QThreadPool::globalInstance()->maxThreadCount();
@@ -245,7 +256,7 @@ void CGeometryObject::Initialize(const QByteArray& rawData)
 void CGeometryObject::Analyze()
 {
 	this->SetState(EState::Analyzing);
-	this->ClearMeshStats();
+	this->ClearAnalyzedData();
 
 	// We want to use ALL available threads
 	int maxThreadCount	= QThreadPool::globalInstance()->maxThreadCount();
@@ -280,7 +291,13 @@ void CGeometryObject::Analyze()
 	}
 }
 
-void CGeometryObject::ClearMeshStats()
+void CGeometryObject::ClearInitializedData()
+{
+	EdgeList.Clear();
+	BoundingBox	= CBoundingBox();
+}
+
+void CGeometryObject::ClearAnalyzedData()
 {
 	MinTriangleArea	= std::numeric_limits<double>().max();
 	MaxTriangleArea	= std::numeric_limits<double>().min();

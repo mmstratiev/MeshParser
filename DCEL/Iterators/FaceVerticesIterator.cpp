@@ -1,6 +1,7 @@
 #include "FaceVerticesIterator.h"
 #include "DCEL/DCEL_Face.h"
 #include "DCEL/DCEL_Edge.h"
+#include <QDebug>
 
 CFaceVerticesIterator::CFaceVerticesIterator(const CDCEL_Face* face)
 	: Face(face)
@@ -19,8 +20,6 @@ CFaceVerticesIterator &CFaceVerticesIterator::operator+=(const int &increment)
 
 void CFaceVerticesIterator::operator++()
 {
-	if(!Edge) return;
-
 	if (Edge->Next() == Face->Edge())
 	{
 		Edge = nullptr;

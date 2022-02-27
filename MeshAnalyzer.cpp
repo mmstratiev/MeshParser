@@ -13,7 +13,7 @@ CMeshAnalyzer::CMeshAnalyzer(CGeometryObject& inOutObject, qsizetype beginIndex,
 	, BeginIndex(beginIndex)
 	, EndIndex(endIndex)
 {
-	//qInfo() << "Created" << this << QThread::currentThread();
+	// qInfo() << "Created" << this << QThread::currentThread();
 }
 
 CMeshAnalyzer::~CMeshAnalyzer()
