@@ -2,6 +2,7 @@
 #define DCEL_EDGE_H
 
 #include "DCEL_Datatypes.h"
+#include "Math/Shapes.h"
 
 class CDCEL_Edge
 {

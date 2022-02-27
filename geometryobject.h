@@ -7,6 +7,7 @@
 #include <QMutex>
 #include <QSet>
 
+#include "AccelerationStructs/BVH.h"
 #include "DCEL/DCEL.h"
 #include "OpenGL/Vertex.h"
 #include "Datatypes.h"
@@ -88,6 +89,8 @@ private slots:
 private:
 	EState		State = EState::Idle;
 	CDCEL		EdgeList;
+	CBVH		BoundingBoxHierarchy;
+
 	std::vector<CVertex> OpenGLVertices;
 
 	CBoundingBox	BoundingBox;

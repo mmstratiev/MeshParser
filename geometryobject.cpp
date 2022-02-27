@@ -256,6 +256,7 @@ void CGeometryObject::Initialize(const QByteArray& rawData)
 void CGeometryObject::Analyze()
 {
 	this->SetState(EState::Analyzing);
+	BoundingBoxHierarchy.Init(BoundingBox, 6); // around 200 nodes
 	this->ClearAnalyzedData();
 
 	// We want to use ALL available threads

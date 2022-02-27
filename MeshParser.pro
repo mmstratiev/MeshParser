@@ -9,6 +9,8 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    AccelerationStructs/BVH.cpp \
+    AccelerationStructs/BVH_Node.cpp \
     AccelerationStructs/BoundingBox.cpp \
     DCEL/DCEL.cpp \
     DCEL/DCEL_Edge.cpp \
@@ -31,6 +33,9 @@ SOURCES += \
     main.cpp \
 
 HEADERS += \
+    AccelerationStructs/BVH.h \
+    AccelerationStructs/BVH_Datatypes.h \
+    AccelerationStructs/BVH_Node.h \
     AccelerationStructs/BoundingBox.h \
     DCEL/DCEL.h \
     DCEL/DCEL_Datatypes.h \
@@ -43,6 +48,7 @@ HEADERS += \
     DCEL/Iterators/VertexVerticesIterator.h \
     Datatypes.h \
     GeometryObject.h \
+    Math/Shapes.h \
     MeshAnalyzer.h \
     MeshReader.h \
     MeshSubdivider.h \

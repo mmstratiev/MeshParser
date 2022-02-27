@@ -1,4 +1,5 @@
 #include "BoundingBox.h"
+#include <QDebug>
 
 CBoundingBox::CBoundingBox()
 {
@@ -6,9 +7,9 @@ CBoundingBox::CBoundingBox()
 }
 
 CBoundingBox::CBoundingBox(QVector3D bottomLeft, QVector3D topRight)
+	: mBottomLeft(bottomLeft)
+	, mTopRight(topRight)
 {
-	this->ExtendTo(bottomLeft);
-	this->ExtendTo(topRight);
 }
 
 const QVector3D &CBoundingBox::BottomLeft() const
@@ -51,11 +52,35 @@ double CBoundingBox::GetMaxZ() const
 	return mTopRight.z();
 }
 
+QVector3D CBoundingBox::GetCenter() const
+{
+	return QVector3D ( (this->GetMinX() + this->GetMaxX()) / 2.0f
+					 , (this->GetMinY() + this->GetMaxY()) / 2.0f
+					 , (this->GetMinZ() + this->GetMaxZ()) / 2.0f);
+}
+
 bool CBoundingBox::IsPointInBox(const QVector3D& pt) const
 {
 	return	pt.x() >= this->GetMinX() && pt.x() <= this->GetMaxX()
 			&& pt.y() >= this->GetMinY() && pt.y() <= this->GetMaxY()
 			&& pt.z() >= this->GetMinZ() && pt.z() <= this->GetMaxZ();
+}
+
+bool CBoundingBox::Intersects(const STriangle &triangle) const
+{
+	CBoundingBox triangleBounds;
+	triangleBounds.ExtendTo(triangle.Vertices[0]);
+	triangleBounds.ExtendTo(triangle.Vertices[1]);
+	triangleBounds.ExtendTo(triangle.Vertices[2]);
+
+	return	this->GetMaxX() > triangleBounds.GetMinX()
+			&& this->GetMinX() < triangleBounds.GetMaxX()
+
+			&& this->GetMaxY() > triangleBounds.GetMinY()
+			&& this->GetMinY() < triangleBounds.GetMaxY()
+
+			&& this->GetMaxZ() > triangleBounds.GetMinZ()
+			&& this->GetMinZ() < triangleBounds.GetMaxZ();
 }
 
 void CBoundingBox::ExtendTo(const QVector3D &extendPt)
@@ -94,28 +119,26 @@ std::vector<CBoundingBox> CBoundingBox::Split(EBoxSplitAxis splitAxis) const
 
 	QVector3D box1TopRight	= mTopRight;
 	QVector3D box2BotLeft	= mBottomLeft;
+	QVector3D center		= this->GetCenter();
 
 	switch(splitAxis)
 	{
 	case CBoundingBox::EBoxSplitAxis::X:
 	{
-		double newZ = this->GetMinZ() + this->GetMaxZ() / 2.0f;
-		box1TopRight.setZ(newZ);
-		box2BotLeft.setZ(newZ);
+		box1TopRight.setZ(center.z());
+		box2BotLeft.setZ(center.z());
 		break;
 	}
 	case CBoundingBox::EBoxSplitAxis::Y:
 	{
-		double newY = this->GetMinY() + this->GetMaxY() / 2.0f;
-		box1TopRight.setY(newY);
-		box2BotLeft.setY(newY);
+		box1TopRight.setY(center.y());
+		box2BotLeft.setY(center.y());
 		break;
 	}
 	case CBoundingBox::EBoxSplitAxis::Z:
 	{
-		double newX = this->GetMinX() + this->GetMaxX() / 2.0f;
-		box1TopRight.setZ(newX);
-		box2BotLeft.setZ(newX);
+		box1TopRight.setX(center.x());
+		box2BotLeft.setX(center.x());
 		break;
 	}
 	}

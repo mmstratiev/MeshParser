@@ -4,6 +4,7 @@
 #include "DCEL_Datatypes.h"
 #include "Iterators/FaceEdgesIterator.h"
 #include "Iterators/FaceVerticesIterator.h"
+#include "Math/Shapes.h"
 
 class CDCEL_Face
 {

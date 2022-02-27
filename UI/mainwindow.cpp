@@ -6,6 +6,15 @@
 
 #include <QJsonDocument>
 
+static const QString kCalcStr				= "Calculating...";
+static const QString kMeshTypeClosedStr		= "Closed";
+static const QString kMeshTypeOpenStr		= "Open";
+
+static const QString kPtInMeshOpen			= "Point is in the object bounds.";
+static const QString kPtInMeshClosed		= "Point is in the object.";
+static const QString kPtNotInMesh			= "Point is not in the object.";
+
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -71,11 +80,11 @@ void MainWindow::OnObjectStateChanged(CGeometryObject::EState newState)
 		case CGeometryObject::EState::Initializing:
 		case CGeometryObject::EState::Analyzing:
 		{
-			ui->TriCountLabel->setText("Calculating...");
-			ui->MinTriAreaLabel->setText("Calculating...");
-			ui->MaxTriAreaLabel->setText("Calculating...");
-			ui->AvgTriAreaLabel->setText("Calculating...");
-			ui->MeshType->setText("Calculating...");
+			ui->TriCountLabel->setText(kCalcStr);
+			ui->MinTriAreaLabel->setText(kCalcStr);
+			ui->MaxTriAreaLabel->setText(kCalcStr);
+			ui->AvgTriAreaLabel->setText(kCalcStr);
+			ui->MeshType->setText(kCalcStr);
 			break;
 		}
 		case CGeometryObject::EState::Idle:
@@ -84,7 +93,7 @@ void MainWindow::OnObjectStateChanged(CGeometryObject::EState newState)
 			ui->MinTriAreaLabel->setText(QString::number(GeometryObject.GetMinTriangleArea()));
 			ui->MaxTriAreaLabel->setText(QString::number(GeometryObject.GetMaxTriangleArea()));
 			ui->AvgTriAreaLabel->setText(QString::number(GeometryObject.GetTotalArea() / GeometryObject.GetTrianglesCount()));
-			ui->MeshType->setText(GeometryObject.IsClosed() ? "Closed" : "Open");
+			ui->MeshType->setText(GeometryObject.IsClosed() ? kMeshTypeClosedStr : kMeshTypeOpenStr);
 			ui->OpenGLWidget->Refresh();
 			break;
 		}
@@ -155,6 +164,7 @@ void MainWindow::on_SubdivideBtn_clicked()
 	GeometryObject.Subdivide((ESubdivisionAlgorithm)ui->SubdivideMethodCombo->currentIndex());
 }
 
+
 void MainWindow::on_CheckPointBtn_clicked()
 {
 	if(!GeometryObject.IsInitialized()) return;
@@ -163,14 +173,22 @@ void MainWindow::on_CheckPointBtn_clicked()
 	double y = ui->PtYBox->value();
 	double z = ui->PtZBox->value();
 
-	if(GeometryObject.GetBoundingBox().IsPointInBox(QVector3D(x, y, z)))
+	QString ptText = kPtNotInMesh;
+
+	if(GeometryObject.IsClosed())
 	{
-		ui->PointInMeshLabel->setText("Yes");
+		// Mesh is closed, we can easily define what "inside" means, do a complex ray trace
+		ptText = kPtInMeshClosed;
 	}
 	else
 	{
-		ui->PointInMeshLabel->setText("No");
+		// Mesh is open, no way to define what "inside" means, do a simple bounds collison check
+		if(GeometryObject.GetBoundingBox().IsPointInBox(QVector3D(x, y, z)))
+		{
+			ptText = kPtInMeshOpen;
+		}
 	}
+	ui->PointInMeshLabel->setText(ptText);
 }
 
 void MainWindow::on_SmoothShadingRadio_toggled(bool checked)
