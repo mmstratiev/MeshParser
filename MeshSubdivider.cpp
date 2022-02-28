@@ -24,11 +24,6 @@ void CMeshSubdivider::run()
 	// Finishing the thread
 }
 
-CDCEL CMeshSubdivider::GetResult()
-{
-	return Destination;
-}
-
 void CMeshSubdivider::Work()
 {
 	std::unordered_map<TDCEL_EdgeID, TDCEL_VertID, TDCEL_EdgeID> EdgeToVerts;
@@ -40,7 +35,12 @@ void CMeshSubdivider::Work()
 	for(size_t faceIndex = 0; faceIndex < facesCount; faceIndex++)
 	{
 		TDCEL_FacePtr currentFace = Source.GetFace(faceIndex);
-		if(!currentFace) continue;
+		if(!currentFace)
+		{
+			GeometryObject.MaxProgress--;
+			emit MadeProgress();
+			continue;
+		};
 
 		CFaceEdgesIterator edgeIt = currentFace->GetFaceEdgesIterator();
 		while(!edgeIt.End())
@@ -92,6 +92,9 @@ void CMeshSubdivider::Work()
 		TDCEL_VertID innerVertID3 = EdgeToVerts.find((*edgeIt)->Prev()->GetID())->second;
 
 		Destination.Connect(innerVertID1, innerVertID2, innerVertID3);
+
+		GeometryObject.Progress++;
+		emit MadeProgress();
 	}
 
 	Source = Destination;

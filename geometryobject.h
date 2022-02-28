@@ -35,6 +35,7 @@ public:
 	{
 		Initializing,
 		Analyzing,
+		Subdividing,
 		Idle,
 	};
 
@@ -46,6 +47,8 @@ public:
 
 	bool		IsInitialized() const;
 	void		WaitForIdle(TOnIdleCallback callback) const;
+
+	EState		GetState() const;
 
 	qsizetype	GetVerticesCount() const;
 	bool		GetVertex(qsizetype vertexID, SVertex& outVertex) const;
@@ -73,6 +76,9 @@ signals:
 	void		StateChanged(CGeometryObject::EState newState);
 	void		Idled();
 
+	// UI
+	void		MadeProgress(int currentProgress, int maxProgress);
+
 private:
 	void		SetState(EState newState);
 
@@ -86,10 +92,13 @@ private slots:
 	void		MeshInitializerFinished();
 	void		MeshAnalyzerFinished();
 
+	// UI
+	void		ThreadMadeProgress();
+
 private:
 	EState		State = EState::Idle;
 	CDCEL		EdgeList;
-	CBVH		BoundingBoxHierarchy;
+	CBVH		BoundingVolHierarchy;
 
 	std::vector<CVertex> OpenGLVertices;
 
@@ -101,6 +110,10 @@ private:
 
 	QMutex					Mutex;
 	QSet<class QObject*>	Workers;
+
+	// Temp values which are used to move information from one thread to another
+	int MaxProgress = 0;
+	int Progress	= 0;
 };
 
 #endif // GEOMETRYOBJECT_H

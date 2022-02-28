@@ -19,10 +19,10 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-public slots:
+private slots:
 	void OnObjectStateChanged(CGeometryObject::EState newState);
+	void OnObjectMadeProgress(int currentProgress, int maxProgress);
 
-private slots:	
 	void on_FileChooseBtn_clicked();
 	void on_ViewNormalsBtn_clicked();
 	void on_ExportBtn_clicked();
@@ -41,6 +41,8 @@ private slots:
 	void on_LightSliderZ_valueChanged(int value);
 
 private:
+	QString GetProgressString() const;
+
 	void RefreshLigthDirectionBoxes();
 	void RefreshLigthDirectionSliders();
 	void RefreshLightDirecitonOpenGL();

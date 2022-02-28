@@ -41,6 +41,11 @@ void CGeometryObject::WaitForIdle(TOnIdleCallback callback) const
 	}
 }
 
+CGeometryObject::EState CGeometryObject::GetState() const
+{
+	return State;
+}
+
 qsizetype CGeometryObject::GetVerticesCount() const
 {
 	return EdgeList.GetVerticesCount();
@@ -117,7 +122,10 @@ bool CGeometryObject::IsClosed() const
 
 void CGeometryObject::Subdivide(ESubdivisionAlgorithm algo)
 {
-	this->SetState(EState::Initializing);
+	this->SetState(EState::Subdividing);
+
+	MaxProgress						= this->GetTrianglesCount();
+	Progress						= 0;
 
 	CMeshSubdivider *worker = new CMeshSubdivider(*this, algo, 0, 0);
 	worker->setObjectName("SubdividerWorker_" + QString::number(0));
@@ -125,6 +133,7 @@ void CGeometryObject::Subdivide(ESubdivisionAlgorithm algo)
 
 	Workers.insert(worker);
 	connect(worker, &CMeshSubdivider::Finished, this, &CGeometryObject::MeshInitializerFinished, Qt::QueuedConnection);
+	connect(worker, &CMeshSubdivider::MadeProgress, this, &CGeometryObject::ThreadMadeProgress, Qt::QueuedConnection);
 
 	QThreadPool::globalInstance()->start(worker);
 
@@ -223,9 +232,12 @@ void CGeometryObject::Initialize(const QByteArray& rawData)
 	int maxThreadCount	= QThreadPool::globalInstance()->maxThreadCount();
 
 	QJsonObject jsonDataObject		= QJsonDocument::fromJson(rawData).object();
-	qsizetype trianglesCount		= CMeshReader::GetTrianglesCountRaw(jsonDataObject);
-	qsizetype trianglesPerThread	= trianglesCount / maxThreadCount;
-	qsizetype remainder				= trianglesCount % maxThreadCount;
+	qsizetype	trianglesCount		= CMeshReader::GetTrianglesCountRaw(jsonDataObject);
+	qsizetype	trianglesPerThread	= trianglesCount / maxThreadCount;
+	qsizetype	remainder			= trianglesCount % maxThreadCount;
+
+	MaxProgress						= trianglesCount;
+	Progress						= 0;
 
 	qsizetype lastEndIndex			= 0;
 	for(int i = 0; i < maxThreadCount; i++)
@@ -248,6 +260,7 @@ void CGeometryObject::Initialize(const QByteArray& rawData)
 
 		Workers.insert(worker);
 		connect(worker, &CMeshReader::Finished, this, &CGeometryObject::MeshInitializerFinished, Qt::QueuedConnection);
+		connect(worker, &CMeshReader::MadeProgress, this, &CGeometryObject::ThreadMadeProgress, Qt::QueuedConnection);
 
 		QThreadPool::globalInstance()->start(worker);
 	}
@@ -256,8 +269,10 @@ void CGeometryObject::Initialize(const QByteArray& rawData)
 void CGeometryObject::Analyze()
 {
 	this->SetState(EState::Analyzing);
-	BoundingBoxHierarchy.Init(BoundingBox, 6); // around 200 nodes
 	this->ClearAnalyzedData();
+
+	// higher depth will incerase analyze time but decrease ray trace time
+	BoundingVolHierarchy.Init(BoundingBox, 4);
 
 	// We want to use ALL available threads
 	int maxThreadCount	= QThreadPool::globalInstance()->maxThreadCount();
@@ -265,6 +280,9 @@ void CGeometryObject::Analyze()
 	qsizetype trianglesCount		= this->GetTrianglesCount();
 	qsizetype trianglesPerThread	= trianglesCount / maxThreadCount;
 	qsizetype remainder				= trianglesCount % maxThreadCount;
+
+	MaxProgress						= trianglesCount;
+	Progress						= 0;
 
 	qsizetype lastEndIndex			= 0;
 	for(int i = 0; i < maxThreadCount; i++)
@@ -287,6 +305,7 @@ void CGeometryObject::Analyze()
 
 		Workers.insert(worker);
 		connect(worker, &CMeshAnalyzer::Finished, this, &CGeometryObject::MeshAnalyzerFinished, Qt::QueuedConnection);
+		connect(worker, &CMeshAnalyzer::MadeProgress, this, &CGeometryObject::ThreadMadeProgress, Qt::QueuedConnection);
 
 		QThreadPool::globalInstance()->start(worker);
 	}
@@ -322,4 +341,9 @@ void CGeometryObject::MeshAnalyzerFinished()
 	{
 		this->SetState(EState::Idle);
 	}
+}
+
+void CGeometryObject::ThreadMadeProgress()
+{
+	emit MadeProgress(Progress, MaxProgress);
 }

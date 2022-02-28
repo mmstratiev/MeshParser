@@ -15,6 +15,7 @@ public:
 
 signals:
 	void Finished();
+	void MadeProgress();
 
 	// QRunnable interface
 public:

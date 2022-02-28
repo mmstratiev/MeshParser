@@ -39,30 +39,34 @@ void CMeshReader::run()
 void CMeshReader::Work()
 {
 	for(int triangleIndex = BeginIndex; triangleIndex < EndIndex; triangleIndex++)
-	{		
+	{
 		QMutexLocker locker(&GeometryObject.Mutex);
 
 		// Cull degenerate triangles. They add no value to the object and impact performance.
 		CTriangle triangle = CMeshReader::GetTriangleRaw(DataObject, triangleIndex);
 		if(triangle.IsDegenerate())
 		{
+			GeometryObject.MaxProgress--;
 			//qInfo() << "Degenerate" << triangleIndex << triangle.Vertices[0] << triangle.Vertices[1] << triangle.Vertices[2];
-			continue;
 		}
+		else
+		{
+			GeometryObject.BoundingBox.ExtendTo(triangle.Vertices(0));
+			GeometryObject.BoundingBox.ExtendTo(triangle.Vertices(1));
+			GeometryObject.BoundingBox.ExtendTo(triangle.Vertices(2));
 
-		GeometryObject.BoundingBox.ExtendTo(triangle.Vertices(0));
-		GeometryObject.BoundingBox.ExtendTo(triangle.Vertices(1));
-		GeometryObject.BoundingBox.ExtendTo(triangle.Vertices(2));
+			TDCEL_VertID vert1ID(CMeshReader::GetTriangleVertexIndexRaw(DataObject, triangleIndex, 0));
+			TDCEL_VertID vert2ID(CMeshReader::GetTriangleVertexIndexRaw(DataObject, triangleIndex, 1));
+			TDCEL_VertID vert3ID(CMeshReader::GetTriangleVertexIndexRaw(DataObject, triangleIndex, 2));
 
-		TDCEL_VertID vert1ID(CMeshReader::GetTriangleVertexIndexRaw(DataObject, triangleIndex, 0));
-		TDCEL_VertID vert2ID(CMeshReader::GetTriangleVertexIndexRaw(DataObject, triangleIndex, 1));
-		TDCEL_VertID vert3ID(CMeshReader::GetTriangleVertexIndexRaw(DataObject, triangleIndex, 2));
+			GeometryObject.EdgeList.AddVertex(vert1ID, CMeshReader::GetVertexRaw(DataObject, vert1ID));
+			GeometryObject.EdgeList.AddVertex(vert2ID, CMeshReader::GetVertexRaw(DataObject, vert2ID));
+			GeometryObject.EdgeList.AddVertex(vert3ID, CMeshReader::GetVertexRaw(DataObject, vert3ID));
 
-		GeometryObject.EdgeList.AddVertex(vert1ID, CMeshReader::GetVertexRaw(DataObject, vert1ID));
-		GeometryObject.EdgeList.AddVertex(vert2ID, CMeshReader::GetVertexRaw(DataObject, vert2ID));
-		GeometryObject.EdgeList.AddVertex(vert3ID, CMeshReader::GetVertexRaw(DataObject, vert3ID));
-
-		GeometryObject.EdgeList.Connect(vert1ID, vert2ID, vert3ID);
+			GeometryObject.EdgeList.Connect(vert1ID, vert2ID, vert3ID);
+			GeometryObject.Progress++;
+		}
+		emit MadeProgress();
 	}
 }
 

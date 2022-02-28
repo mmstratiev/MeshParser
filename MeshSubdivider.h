@@ -14,12 +14,11 @@ public:
 
 signals:
 	void Finished();
+	void MadeProgress();
 
 	// QRunnable interface
 public:
 	void run() Q_DECL_OVERRIDE;
-
-	CDCEL GetResult();
 
 private:
 	void Work();

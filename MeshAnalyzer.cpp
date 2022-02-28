@@ -29,27 +29,34 @@ void CMeshAnalyzer::Work()
 		QMutexLocker locker(&GeometryObject.Mutex);
 		TDCEL_FacePtr faceToCheck = GeometryObject.EdgeList.GetFace(triangleIndex);
 
-		if(!faceToCheck) continue;
-
-		CTriangle triangle = faceToCheck->Get();
-		double triangleArea = triangle.GetArea();
-
-		GeometryObject.BoundingBoxHierarchy.AddLeaf(faceToCheck);
-
-		GeometryObject.MaxTriangleArea	= std::max<double>(GeometryObject.MaxTriangleArea, triangleArea);
-		GeometryObject.MinTriangleArea	= std::min<double>(GeometryObject.MinTriangleArea, triangleArea);
-		GeometryObject.TotalArea		= GeometryObject.TotalArea + triangleArea;
-
-		// Find out if mesh is closed or open
-		if(GeometryObject.IsClosed())
+		if(!faceToCheck)
 		{
-			TDCEL_EdgePtr currentEdge = faceToCheck->Edge();
-			do
-			{
-				GeometryObject.bIsClosed = currentEdge->Twin();
-				currentEdge = currentEdge->Next();
-			} while(currentEdge != faceToCheck->Edge() && GeometryObject.bIsClosed);
+			GeometryObject.MaxProgress--;
 		}
+		else
+		{
+			CTriangle triangle = faceToCheck->Get();
+			double triangleArea = triangle.GetArea();
+
+			GeometryObject.BoundingVolHierarchy.AddLeaf(faceToCheck);
+
+			GeometryObject.MaxTriangleArea	= std::max<double>(GeometryObject.MaxTriangleArea, triangleArea);
+			GeometryObject.MinTriangleArea	= std::min<double>(GeometryObject.MinTriangleArea, triangleArea);
+			GeometryObject.TotalArea		= GeometryObject.TotalArea + triangleArea;
+
+			// Find out if mesh is closed or open
+			if(GeometryObject.IsClosed())
+			{
+				TDCEL_EdgePtr currentEdge = faceToCheck->Edge();
+				do
+				{
+					GeometryObject.bIsClosed = currentEdge->Twin();
+					currentEdge = currentEdge->Next();
+				} while(currentEdge != faceToCheck->Edge() && GeometryObject.bIsClosed);
+			}
+			GeometryObject.Progress++;
+		}
+		emit MadeProgress();
 	//	qInfo() << "Work" << this << QThread::currentThread();
 	}
 }

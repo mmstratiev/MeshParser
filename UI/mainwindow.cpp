@@ -5,6 +5,7 @@
 #include <QFileDialog>
 
 #include <QJsonDocument>
+#include <QMessageBox>
 
 static const QString kCalcStr				= "Calculating...";
 static const QString kMeshTypeClosedStr		= "Closed";
@@ -14,13 +15,13 @@ static const QString kPtInMeshOpen			= "Point is in the object bounds.";
 static const QString kPtInMeshClosed		= "Point is in the object.";
 static const QString kPtNotInMesh			= "Point is not in the object.";
 
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 	connect(&GeometryObject, &CGeometryObject::StateChanged, this, &MainWindow::OnObjectStateChanged);
+	connect(&GeometryObject, &CGeometryObject::MadeProgress, this, &MainWindow::OnObjectMadeProgress);
 
 	QSurfaceFormat format;
 	format.setRenderableType(QSurfaceFormat::OpenGL);
@@ -30,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent)
 	ui->OpenGLWidget->setFormat(format);
 	ui->OpenGLWidget->SetObjectToDraw(&GeometryObject);
 	ui->OpenGLWidget->SetShading(ui->SmoothShadingRadio->isChecked() ? EShading::Smooth : EShading::Flat);
+	ui->ProgressBar->hide();
 
 	this->RefreshLightDirecitonOpenGL();
 }
@@ -79,27 +81,37 @@ void MainWindow::OnObjectStateChanged(CGeometryObject::EState newState)
 {
 	switch (newState)
 	{
-		case CGeometryObject::EState::Initializing:
-		case CGeometryObject::EState::Analyzing:
-		{
-			ui->TriCountLabel->setText(kCalcStr);
-			ui->MinTriAreaLabel->setText(kCalcStr);
-			ui->MaxTriAreaLabel->setText(kCalcStr);
-			ui->AvgTriAreaLabel->setText(kCalcStr);
-			ui->MeshType->setText(kCalcStr);
-			break;
-		}
-		case CGeometryObject::EState::Idle:
-		{
-			ui->TriCountLabel->setText(QString::number(GeometryObject.GetTrianglesCount()));
-			ui->MinTriAreaLabel->setText(QString::number(GeometryObject.GetMinTriangleArea()));
-			ui->MaxTriAreaLabel->setText(QString::number(GeometryObject.GetMaxTriangleArea()));
-			ui->AvgTriAreaLabel->setText(QString::number(GeometryObject.GetTotalArea() / GeometryObject.GetTrianglesCount()));
-			ui->MeshType->setText(GeometryObject.IsClosed() ? kMeshTypeClosedStr : kMeshTypeOpenStr);
-			ui->OpenGLWidget->Refresh();
-			break;
-		}
+	case CGeometryObject::EState::Initializing:
+	case CGeometryObject::EState::Analyzing:
+	case CGeometryObject::EState::Subdividing:
+	{
+		ui->ProgressBar->setFormat(this->GetProgressString());
+		ui->ProgressBar->show();
+		ui->TriCountLabel->setText(kCalcStr);
+		ui->MinTriAreaLabel->setText(kCalcStr);
+		ui->MaxTriAreaLabel->setText(kCalcStr);
+		ui->AvgTriAreaLabel->setText(kCalcStr);
+		ui->MeshType->setText(kCalcStr);
+		break;
 	}
+	case CGeometryObject::EState::Idle:
+	{
+		ui->ProgressBar->hide();
+		ui->TriCountLabel->setText(QString::number(GeometryObject.GetTrianglesCount()));
+		ui->MinTriAreaLabel->setText(QString::number(GeometryObject.GetMinTriangleArea()));
+		ui->MaxTriAreaLabel->setText(QString::number(GeometryObject.GetMaxTriangleArea()));
+		ui->AvgTriAreaLabel->setText(QString::number(GeometryObject.GetTotalArea() / GeometryObject.GetTrianglesCount()));
+		ui->MeshType->setText(GeometryObject.IsClosed() ? kMeshTypeClosedStr : kMeshTypeOpenStr);
+		ui->OpenGLWidget->Refresh();
+		break;
+	}
+	}
+}
+
+void MainWindow::OnObjectMadeProgress(int currentProgress, int maxProgress)
+{
+	ui->ProgressBar->setMaximum(maxProgress);
+	ui->ProgressBar->setValue(currentProgress);
 }
 
 void MainWindow::on_ExportBtn_clicked()
@@ -187,7 +199,10 @@ void MainWindow::on_CheckPointBtn_clicked()
 			ptText = kPtInMeshOpen;
 		}
 	}
-	ui->PointInMeshLabel->setText(ptText);
+
+	QMessageBox msgBox;
+	msgBox.setText(ptText);
+	msgBox.exec();
 }
 
 void MainWindow::on_SmoothShadingRadio_toggled(bool checked)
@@ -258,5 +273,25 @@ void MainWindow::on_LightSliderZ_valueChanged(int value)
 {
 	this->RefreshLigthDirectionBoxes();
 	this->RefreshLightDirecitonOpenGL();
+}
+
+QString MainWindow::GetProgressString() const
+{
+	QString result = "Idle";
+	switch (GeometryObject.GetState())
+	{
+	case CGeometryObject::EState::Initializing:
+		result = "Initializing : %p%";
+		break;
+	case CGeometryObject::EState::Analyzing:
+		result = "Analyzing : %p%";
+		break;
+	case CGeometryObject::EState::Subdividing:
+		result = "Subdividing : %p%";
+		break;
+	case CGeometryObject::EState::Idle:
+		break;
+	}
+	return result;
 }
 
