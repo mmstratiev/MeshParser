@@ -29,8 +29,8 @@ class COpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 
 		void TeardownGL();
 		void Refresh();
-		void ResetCamera();
 
+		void SetCamera(const QVector3D& translation, const QQuaternion& rotation);
 		void SetObjectToDraw(CGeometryObject *objectToDraw);
 		void SetShading(EShading shading);
 		void SetLightDirection(const QVector3D& dir);

@@ -33,7 +33,6 @@ void CCamera3D::Rotate(float angle, float ax, float ay, float az)
 	Rotate(QQuaternion::fromAxisAndAngle(ax, ay, az, angle));
 }
 
-// Transform To (Setters)
 void CCamera3D::SetTranslation(const QVector3D &t)
 {
 	bDirty = true;

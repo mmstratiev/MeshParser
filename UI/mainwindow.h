@@ -40,6 +40,8 @@ private slots:
 	void on_LightSliderY_valueChanged(int value);
 	void on_LightSliderZ_valueChanged(int value);
 
+	void on_FitToObjectBtn_clicked();
+
 private:
 	QString GetProgressString() const;
 

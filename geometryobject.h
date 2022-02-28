@@ -46,7 +46,7 @@ public:
 	void		Init(CDCEL& edgeList);
 
 	bool		IsInitialized() const;
-	void		WaitForIdle(TOnIdleCallback callback) const;
+	void		WhenIdle(TOnIdleCallback callback) const;
 
 	EState		GetState() const;
 

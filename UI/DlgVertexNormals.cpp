@@ -36,7 +36,7 @@ void CDlgVertexNormals::LoadVertices()
 {
 	connect(this, &CDlgVertexNormals::AddedVertex, this, &CDlgVertexNormals::OnAddedVertex);
 
-	GeometryObject->WaitForIdle([&] (){
+	GeometryObject->WhenIdle([&] (){
 		qsizetype vertsCount = GeometryObject->GetVerticesCount();
 		ui->progressBar->setMaximum(vertsCount-1);
 		ui->normalsTable->setRowCount(vertsCount);

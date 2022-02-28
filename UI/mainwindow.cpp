@@ -42,7 +42,7 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::on_FileChooseBtn_clicked()
-{
+{	
 	QString filter = "JSON File (*.json)";
 	QString title = "Choose mesh file";
 
@@ -85,6 +85,13 @@ void MainWindow::OnObjectStateChanged(CGeometryObject::EState newState)
 	case CGeometryObject::EState::Analyzing:
 	case CGeometryObject::EState::Subdividing:
 	{
+		ui->FileChooseBtn->setEnabled(false);
+		ui->ExportBtn->setEnabled(false);
+		ui->ViewNormalsBtn->setEnabled(false);
+		ui->FitToObjectBtn->setEnabled(false);
+		ui->SubdivideBtn->setEnabled(false);
+		ui->CheckPointBtn->setEnabled(false);
+
 		ui->ProgressBar->setFormat(this->GetProgressString());
 		ui->ProgressBar->show();
 		ui->TriCountLabel->setText(kCalcStr);
@@ -96,6 +103,13 @@ void MainWindow::OnObjectStateChanged(CGeometryObject::EState newState)
 	}
 	case CGeometryObject::EState::Idle:
 	{
+		ui->FileChooseBtn->setEnabled(true);
+		ui->ExportBtn->setEnabled(true);
+		ui->ViewNormalsBtn->setEnabled(true);
+		ui->FitToObjectBtn->setEnabled(true);
+		ui->SubdivideBtn->setEnabled(true);
+		ui->CheckPointBtn->setEnabled(true);
+
 		ui->ProgressBar->hide();
 		ui->TriCountLabel->setText(QString::number(GeometryObject.GetTrianglesCount()));
 		ui->MinTriAreaLabel->setText(QString::number(GeometryObject.GetMinTriangleArea()));
@@ -293,5 +307,17 @@ QString MainWindow::GetProgressString() const
 		break;
 	}
 	return result;
+}
+
+
+void MainWindow::on_FitToObjectBtn_clicked()
+{
+	if(!GeometryObject.IsInitialized()) return;
+	const CBoundingBox& bounds = GeometryObject.GetBoundingBox();
+	double x = bounds.GetCenter().x();
+	double y = bounds.GetCenter().z();
+	double z = (bounds.GetMaxY() + (bounds.GetHeight())) * 1.5f;
+
+	ui->OpenGLWidget->SetCamera(QVector3D(x, y, z), QQuaternion());
 }
 

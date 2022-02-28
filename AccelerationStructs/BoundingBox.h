@@ -27,7 +27,8 @@ public:
 	double GetMinZ() const;
 	double GetMaxZ() const;
 
-	QVector3D GetCenter() const;
+	QVector3D	GetCenter() const;
+	double		GetHeight() const;
 
 	bool IsPointInBox(const QVector3D& pt) const;
 

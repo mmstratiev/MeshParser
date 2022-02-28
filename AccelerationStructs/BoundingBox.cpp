@@ -56,7 +56,12 @@ QVector3D CBoundingBox::GetCenter() const
 {
 	return QVector3D ( (this->GetMinX() + this->GetMaxX()) / 2.0f
 					 , (this->GetMinY() + this->GetMaxY()) / 2.0f
-					 , (this->GetMinZ() + this->GetMaxZ()) / 2.0f);
+					   , (this->GetMinZ() + this->GetMaxZ()) / 2.0f);
+}
+
+double CBoundingBox::GetHeight() const
+{
+	return std::abs(this->GetMinZ() - this->GetMaxZ());
 }
 
 bool CBoundingBox::IsPointInBox(const QVector3D& pt) const

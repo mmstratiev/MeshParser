@@ -9,7 +9,6 @@ COpenGLWidget::COpenGLWidget(QWidget *parent)
 	: QOpenGLWidget(parent)
 {
 	setFocusPolicy(Qt::StrongFocus);
-	this->ResetCamera();
 }
 
 COpenGLWidget::~COpenGLWidget()
@@ -124,10 +123,10 @@ void COpenGLWidget::Refresh()
 	this->initializeGL();
 }
 
-void COpenGLWidget::ResetCamera()
+void COpenGLWidget::SetCamera(const QVector3D &translation, const QQuaternion &rotation)
 {
-	Camera.SetTranslation(0.0f, 0.0f, 15.0f);
-	Camera.SetRotation(0.0f, 0.0f, 0.0f, 0.0f);
+	Camera.SetTranslation(translation);
+	Camera.SetRotation(rotation);
 }
 
 void COpenGLWidget::SetObjectToDraw(CGeometryObject *objectToDraw)

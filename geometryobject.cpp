@@ -29,7 +29,7 @@ bool CGeometryObject::IsInitialized() const
 	return EdgeList.GetVerticesCount() > 0 && State == EState::Idle;
 }
 
-void CGeometryObject::WaitForIdle(TOnIdleCallback callback) const
+void CGeometryObject::WhenIdle(TOnIdleCallback callback) const
 {
 	if(State != EState::Idle)
 	{
