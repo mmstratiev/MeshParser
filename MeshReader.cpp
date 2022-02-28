@@ -43,16 +43,16 @@ void CMeshReader::Work()
 		QMutexLocker locker(&GeometryObject.Mutex);
 
 		// Cull degenerate triangles. They add no value to the object and impact performance.
-		STriangle triangle = CMeshReader::GetTriangleRaw(DataObject, triangleIndex);
+		CTriangle triangle = CMeshReader::GetTriangleRaw(DataObject, triangleIndex);
 		if(triangle.IsDegenerate())
 		{
 			//qInfo() << "Degenerate" << triangleIndex << triangle.Vertices[0] << triangle.Vertices[1] << triangle.Vertices[2];
 			continue;
 		}
 
-		GeometryObject.BoundingBox.ExtendTo(triangle.Vertices[0]);
-		GeometryObject.BoundingBox.ExtendTo(triangle.Vertices[1]);
-		GeometryObject.BoundingBox.ExtendTo(triangle.Vertices[2]);
+		GeometryObject.BoundingBox.ExtendTo(triangle.Vertices(0));
+		GeometryObject.BoundingBox.ExtendTo(triangle.Vertices(1));
+		GeometryObject.BoundingBox.ExtendTo(triangle.Vertices(2));
 
 		TDCEL_VertID vert1ID(CMeshReader::GetTriangleVertexIndexRaw(DataObject, triangleIndex, 0));
 		TDCEL_VertID vert2ID(CMeshReader::GetTriangleVertexIndexRaw(DataObject, triangleIndex, 1));
@@ -131,15 +131,15 @@ qsizetype CMeshReader::GetTrianglesCountRaw(const QJsonObject& jsonDataObject)
 	return triangles.count() / 3;
 }
 
-STriangle CMeshReader::GetTriangleRaw(const QJsonObject& jsonDataObject, qsizetype triangleIndex)
+CTriangle CMeshReader::GetTriangleRaw(const QJsonObject& jsonDataObject, qsizetype triangleIndex)
 {
-	STriangle result;
+	CTriangle result;
 
-	result.Vertices[0] = CMeshReader::GetVertexRaw(jsonDataObject, CMeshReader::GetTriangleVertexIndexRaw(jsonDataObject, triangleIndex, 0));
-	result.Vertices[1] = CMeshReader::GetVertexRaw(jsonDataObject, CMeshReader::GetTriangleVertexIndexRaw(jsonDataObject, triangleIndex, 1));
-	result.Vertices[2] = CMeshReader::GetVertexRaw(jsonDataObject, CMeshReader::GetTriangleVertexIndexRaw(jsonDataObject, triangleIndex, 2));
+	QVector3D vert1 = CMeshReader::GetVertexRaw(jsonDataObject, CMeshReader::GetTriangleVertexIndexRaw(jsonDataObject, triangleIndex, 0));
+	QVector3D vert2 = CMeshReader::GetVertexRaw(jsonDataObject, CMeshReader::GetTriangleVertexIndexRaw(jsonDataObject, triangleIndex, 1));
+	QVector3D vert3 = CMeshReader::GetVertexRaw(jsonDataObject, CMeshReader::GetTriangleVertexIndexRaw(jsonDataObject, triangleIndex, 2));
 
-	return result;
+	return CTriangle(vert1, vert2, vert3);
 }
 
 qsizetype CMeshReader::GetTriangleVertexIndexRaw(const QJsonObject& jsonDataObject, qsizetype triangleIndex, qsizetype vertexNum)

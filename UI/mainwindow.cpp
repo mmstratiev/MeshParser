@@ -130,7 +130,7 @@ void MainWindow::on_ExportBtn_clicked()
 		qsizetype trianglesCount = GeometryObject.GetTrianglesCount();
 		for(qsizetype triangleID = 0; triangleID < trianglesCount; triangleID++)
 		{
-			STriangle triangle;
+			CTriangle triangle;
 			if(GeometryObject.GetTriangle(triangleID, triangle))
 			{
 				int vert1ID = GeometryObject.GetTriangleVertID(triangleID, 0);
@@ -169,11 +169,8 @@ void MainWindow::on_CheckPointBtn_clicked()
 {
 	if(!GeometryObject.IsInitialized()) return;
 
-	double x = ui->PtXBox->value();
-	double y = ui->PtYBox->value();
-	double z = ui->PtZBox->value();
-
-	QString ptText = kPtNotInMesh;
+	QVector3D	ptToCheck(ui->PtXBox->value(), ui->PtYBox->value(), ui->PtZBox->value());
+	QString		ptText = kPtNotInMesh;
 
 	if(GeometryObject.IsClosed())
 	{
@@ -183,7 +180,7 @@ void MainWindow::on_CheckPointBtn_clicked()
 	else
 	{
 		// Mesh is open, no way to define what "inside" means, do a simple bounds collison check
-		if(GeometryObject.GetBoundingBox().IsPointInBox(QVector3D(x, y, z)))
+		if(GeometryObject.GetBoundingBox().IsPointInBox(ptToCheck))
 		{
 			ptText = kPtInMeshOpen;
 		}

@@ -24,6 +24,11 @@ const CBoundingBox &CBVH_Node::Data() const
 	return mData;
 }
 
+const TLeavesSet &CBVH_Node::Leaves() const
+{
+	return mLeaves;
+}
+
 void CBVH_Node::SetLeft(TBVH_NodePtr newLeft)
 {
 	mLeft.reset(newLeft);
@@ -41,7 +46,7 @@ void CBVH_Node::SetData(const CBoundingBox &newData)
 
 void CBVH_Node::AddLeaf(TDCEL_FacePtr leaf)
 {
-	STriangle triangle = leaf->Get();
+	CTriangle triangle = leaf->Get();
 	if(mLeft && mRight)
 	{
 		if(mLeft->Data().Intersects(triangle))
@@ -55,7 +60,7 @@ void CBVH_Node::AddLeaf(TDCEL_FacePtr leaf)
 	}
 	else
 	{
-		Leafs.insert(leaf);
+		mLeaves.insert(leaf);
 	}
 }
 

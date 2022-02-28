@@ -6,6 +6,8 @@
 #include "BVH_Datatypes.h"
 #include "BoundingBox.h"
 
+using TLeavesSet = std::unordered_set<TDCEL_FacePtr>;
+
 class CBVH_Node
 {
 public:
@@ -15,12 +17,11 @@ public:
 	TBVH_NodePtr Left() const;
 	TBVH_NodePtr Right() const;
 	const CBoundingBox& Data() const;
+	const TLeavesSet& Leaves() const;
 
 	void SetLeft(TBVH_NodePtr newLeft);
 	void SetRight(TBVH_NodePtr newRight);
 	void SetData(const CBoundingBox& newData);
-
-	size_t GetLeafsCount() const;
 
 	void AddLeaf(TDCEL_FacePtr leaf);
 
@@ -33,7 +34,7 @@ private:
 
 	CBoundingBox mData;
 
-	std::unordered_set<TDCEL_FacePtr> Leafs;
+	TLeavesSet mLeaves;
 };
 
 #endif // CBVH_NODE_H

@@ -30,7 +30,7 @@ public:
 	static QVector3D	GetVertexRaw(const QJsonObject& jsonDataObject, qsizetype vertexIndex);
 
 	static qsizetype	GetTrianglesCountRaw(const QJsonObject& jsonDataObject);
-	static STriangle	GetTriangleRaw(const QJsonObject& jsonDataObject, qsizetype triangleIndex);
+	static CTriangle	GetTriangleRaw(const QJsonObject& jsonDataObject, qsizetype triangleIndex);
 	static qsizetype	GetTriangleVertexIndexRaw(const QJsonObject& jsonDataObject, qsizetype triangleIndex, qsizetype vertexNum);
 
 private:

@@ -4,13 +4,13 @@
 #include "DCEL_Datatypes.h"
 #include "Iterators/FaceEdgesIterator.h"
 #include "Iterators/FaceVerticesIterator.h"
-#include "Math/Shapes.h"
+#include "Math/Triangle.h"
 
 class CDCEL_Face
 {
 public:
 	CDCEL_Face(TDCEL_FaceID id);
-	STriangle Get() const;
+	CTriangle Get() const;
 
 	TDCEL_EdgePtr	Edge() const;
 	void			SetEdge(TDCEL_EdgePtr newEdge);

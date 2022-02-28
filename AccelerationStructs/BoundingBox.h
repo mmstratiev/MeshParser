@@ -2,7 +2,7 @@
 #define CBOUNDINGBOX_H
 
 #include <QVector3D>
-#include "Math/Shapes.h"
+#include "Math/Triangle.h"
 
 class CBoundingBox
 {
@@ -30,7 +30,9 @@ public:
 	QVector3D GetCenter() const;
 
 	bool IsPointInBox(const QVector3D& pt) const;
-	bool Intersects(const STriangle& triangle) const;
+
+	bool Intersects(const QVector3D& origin, const QVector3D& dir) const;
+	bool Intersects(const CTriangle& triangle) const;
 
 	void ExtendTo(const QVector3D& extendPt);
 

@@ -10,6 +10,12 @@ class CBVH
 public:
 	CBVH();
 	void Init(CBoundingBox rootBounds, size_t depth);
+	void AddLeaf(TDCEL_FacePtr leaf);
+
+	bool RayTrace(QVector3D origin, QVector3D dir) const;
+
+private:
+	void SearchForLeavesRecursive(TBVH_NodePtr currentNode,TLeavesSet& outLeaves, std::function<bool(TBVH_NodePtr)> callback) const;
 
 private:
 	std::unique_ptr<CBVH_Node> Root = nullptr;

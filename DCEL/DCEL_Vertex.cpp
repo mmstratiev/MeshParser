@@ -56,7 +56,7 @@ QVector3D CDCEL_Vertex::GetNormal() const
 	CVertexFacesIterator iterator(this, true);
 	while(!iterator.End())
 	{
-		STriangle triangle = (*iterator)->Get();
+		CTriangle triangle = (*iterator)->Get();
 		result += triangle.GetNormal();
 		++iterator;
 	}
@@ -68,7 +68,7 @@ QVector3D CDCEL_Vertex::GetNormal() const
 		++iterator;
 		while(!iterator.End())
 		{
-			STriangle triangle = (*iterator)->Get();
+			CTriangle triangle = (*iterator)->Get();
 			result += triangle.GetNormal();
 			++iterator;
 		}

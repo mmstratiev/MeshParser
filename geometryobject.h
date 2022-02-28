@@ -51,7 +51,7 @@ public:
 	bool		GetVertex(qsizetype vertexID, SVertex& outVertex) const;
 
 	qsizetype	GetTrianglesCount() const;
-	bool		GetTriangle(qsizetype triangleID, STriangle& outTriangle) const;
+	bool		GetTriangle(qsizetype triangleID, CTriangle& outTriangle) const;
 	qsizetype	GetTriangleVertID(qsizetype triangleID, qsizetype vertIndex) const;
 
 	const CBoundingBox& GetBoundingBox() const;

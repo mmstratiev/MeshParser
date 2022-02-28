@@ -6,21 +6,45 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1125</width>
-    <height>726</height>
+    <width>1179</width>
+    <height>783</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <property name="spacing">
+     <number>6</number>
+    </property>
+    <property name="leftMargin">
+     <number>9</number>
+    </property>
+    <property name="topMargin">
+     <number>9</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
     <item>
      <widget class="QGroupBox" name="groupBox_3">
       <property name="title">
        <string>Viewport</string>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>9</number>
+       </property>
        <item>
         <widget class="COpenGLWidget" name="OpenGLWidget">
          <property name="sizePolicy">
@@ -37,11 +61,75 @@
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QProgressBar" name="ProgressBar">
+         <property name="inputMethodHints">
+          <set>Qt::ImhNone</set>
+         </property>
+         <property name="value">
+          <number>24</number>
+         </property>
+         <property name="invertedAppearance">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <property name="spacing">
+          <number>12</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="label_9">
+           <property name="text">
+            <string>W, A, S, D, E, Q: Translate camera</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="Line" name="line">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_14">
+           <property name="text">
+            <string>Right mouse button: Hold to rotate camera</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton">
+           <property name="text">
+            <string>Fit to object</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
       </layout>
      </widget>
     </item>
     <item>
      <layout class="QVBoxLayout" name="verticalLayout_5">
+      <property name="spacing">
+       <number>6</number>
+      </property>
       <item>
        <widget class="QGroupBox" name="fileGroupBox">
         <property name="title">
@@ -67,7 +155,14 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>Choose file</string>
+            <string>Open...</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="ExportBtn">
+           <property name="text">
+            <string>Export...</string>
            </property>
           </widget>
          </item>
@@ -111,7 +206,7 @@
          <item>
           <widget class="QPushButton" name="ViewNormalsBtn">
            <property name="text">
-            <string>View vertex normals</string>
+            <string>View vertex normals...</string>
            </property>
           </widget>
          </item>
@@ -225,27 +320,104 @@
       <item>
        <widget class="QGroupBox" name="groupBox_5">
         <property name="title">
-         <string>Shading</string>
+         <string>Rendering</string>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <layout class="QVBoxLayout" name="verticalLayout_8">
          <item>
-          <widget class="QRadioButton" name="FlatShadingRadio">
-           <property name="text">
-            <string>Flat</string>
+          <widget class="QGroupBox" name="groupBox_6">
+           <property name="title">
+            <string>Light direction</string>
            </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_9">
+              <property name="spacing">
+               <number>1</number>
+              </property>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_15">
+                <item>
+                 <widget class="QDoubleSpinBox" name="doubleSpinBox"/>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_13">
+                <item>
+                 <widget class="QDoubleSpinBox" name="doubleSpinBox_2"/>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_14">
+                <item>
+                 <widget class="QDoubleSpinBox" name="doubleSpinBox_3"/>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_10">
+              <property name="spacing">
+               <number>1</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="label_12">
+                <property name="text">
+                 <string>TextLabel</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_10">
+                <property name="text">
+                 <string>TextLabel</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_11">
+                <property name="text">
+                 <string>TextLabel</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QDial" name="dial"/>
+            </item>
+           </layout>
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="SmoothShadingRadio">
-           <property name="text">
-            <string>Smooth</string>
+          <widget class="QGroupBox" name="groupBox_4">
+           <property name="title">
+            <string>Shading method</string>
            </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <widget class="QRadioButton" name="FlatShadingRadio">
+              <property name="text">
+               <string>Flat</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="SmoothShadingRadio">
+              <property name="text">
+               <string>Smooth</string>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </item>
         </layout>
@@ -257,6 +429,9 @@
          <string>Mesh operations:</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
+         <property name="bottomMargin">
+          <number>9</number>
+         </property>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_12">
            <item>
@@ -396,62 +571,6 @@
            </layout>
           </widget>
          </item>
-         <item>
-          <widget class="QPushButton" name="ExportBtn">
-           <property name="text">
-            <string>Export</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QGroupBox" name="groupBox_4">
-        <property name="title">
-         <string>Controls</string>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_8">
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_4">
-           <item>
-            <layout class="QVBoxLayout" name="verticalLayout_10">
-             <item>
-              <widget class="QLabel" name="label_11">
-               <property name="text">
-                <string>W, A, S, D, E, Q:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="label_10">
-               <property name="text">
-                <string>Right mouse button:</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QVBoxLayout" name="verticalLayout_9">
-             <item>
-              <widget class="QLabel" name="label_12">
-               <property name="text">
-                <string>Translate camera</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="label_13">
-               <property name="text">
-                <string>Hold to rotate camera</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </item>
         </layout>
        </widget>
       </item>
@@ -477,7 +596,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1125</width>
+     <width>1179</width>
      <height>21</height>
     </rect>
    </property>

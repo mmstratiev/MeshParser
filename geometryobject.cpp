@@ -65,7 +65,7 @@ qsizetype CGeometryObject::GetTrianglesCount() const
 	return EdgeList.GetFacesCount();
 }
 
-bool CGeometryObject::GetTriangle(qsizetype triangleID, STriangle& outTriangle) const
+bool CGeometryObject::GetTriangle(qsizetype triangleID, CTriangle& outTriangle) const
 {
 	bool result = false;
 	TDCEL_FacePtr face = EdgeList.GetFace(triangleID);
@@ -167,7 +167,7 @@ void CGeometryObject::BuildOpenGLVertexes()
 	qsizetype trisCount = this->GetTrianglesCount();
 	for (qsizetype triangleID = 0; triangleID < trisCount ; triangleID++)
 	{
-		STriangle triangle;
+		CTriangle triangle;
 		if(this->GetTriangle(triangleID, triangle))
 		{
 			auto flipZY = [](QVector3D in) -> QVector3D

@@ -21,6 +21,7 @@ SOURCES += \
     DCEL/Iterators/VertexFacesIterator.cpp \
     DCEL/Iterators/VertexVerticesIterator.cpp \
     GeometryObject.cpp \
+    Math/Triangle.cpp \
     MeshAnalyzer.cpp \
     MeshReader.cpp \
     MeshSubdivider.cpp \
@@ -49,6 +50,7 @@ HEADERS += \
     Datatypes.h \
     GeometryObject.h \
     Math/Shapes.h \
+    Math/Triangle.h \
     MeshAnalyzer.h \
     MeshReader.h \
     MeshSubdivider.h \

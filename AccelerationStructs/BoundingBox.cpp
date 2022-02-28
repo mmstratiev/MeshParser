@@ -66,12 +66,51 @@ bool CBoundingBox::IsPointInBox(const QVector3D& pt) const
 			&& pt.z() >= this->GetMinZ() && pt.z() <= this->GetMaxZ();
 }
 
-bool CBoundingBox::Intersects(const STriangle &triangle) const
+// https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
+bool CBoundingBox::Intersects(const QVector3D &origin, const QVector3D &dir) const
+{
+	float tmin = (this->GetMinX() - origin.x()) / dir.x();
+	float tmax = (this->GetMaxX() - origin.x()) / dir.x();
+
+	if (tmin > tmax) std::swap(tmin, tmax);
+
+	float tymin = (this->GetMinY() - origin.y()) / dir.y();
+	float tymax = (this->GetMaxY() - origin.y()) / dir.y();
+
+	if (tymin > tymax) std::swap(tymin, tymax);
+
+	if ((tmin > tymax) || (tymin > tmax))
+		 return false;
+
+	if (tymin > tmin)
+		 tmin = tymin;
+
+	if (tymax < tmax)
+		 tmax = tymax;
+
+	float tzmin = (this->GetMinZ() - origin.z()) / dir.z();
+	float tzmax = (this->GetMaxZ() - origin.z()) / dir.z();
+
+	if (tzmin > tzmax) std::swap(tzmin, tzmax);
+
+	if ((tmin > tzmax) || (tzmin > tmax))
+		 return false;
+
+	if (tzmin > tmin)
+		 tmin = tzmin;
+
+	if (tzmax < tmax)
+		 tmax = tzmax;
+
+	return true;
+}
+
+bool CBoundingBox::Intersects(const CTriangle &triangle) const
 {
 	CBoundingBox triangleBounds;
-	triangleBounds.ExtendTo(triangle.Vertices[0]);
-	triangleBounds.ExtendTo(triangle.Vertices[1]);
-	triangleBounds.ExtendTo(triangle.Vertices[2]);
+	triangleBounds.ExtendTo(triangle.Vertices(0));
+	triangleBounds.ExtendTo(triangle.Vertices(1));
+	triangleBounds.ExtendTo(triangle.Vertices(2));
 
 	return	this->GetMaxX() > triangleBounds.GetMinX()
 			&& this->GetMinX() < triangleBounds.GetMaxX()

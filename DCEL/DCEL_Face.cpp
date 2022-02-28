@@ -7,9 +7,9 @@ CDCEL_Face::CDCEL_Face(TDCEL_FaceID id)
 	: ID(id)
 {}
 
-STriangle CDCEL_Face::Get() const
+CTriangle CDCEL_Face::Get() const
 {
-	return STriangle(Edge()->Get(), Edge()->Next()->Get());
+	return CTriangle(Edge()->Get(), Edge()->Next()->Get());
 }
 
 TDCEL_EdgePtr CDCEL_Face::Edge() const
