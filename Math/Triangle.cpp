@@ -69,18 +69,14 @@ bool CTriangle::Intersects(const QVector3D &origin, const QVector3D &dir) const
 	QVector3D pvec = QVector3D::crossProduct(dir, v0v2);
 
 	float det = QVector3D::dotProduct(v0v1, pvec);
-
-	if (det < 0.000001)
-		return false;
+	if (fabs(det) < 0.00001f) return false;
 
 	float invDet = 1.0 / det;
 
 	QVector3D tvec = origin - Vertices(0);
-
 	float u = QVector3D::dotProduct(tvec, pvec) * invDet;
 
-	if (u < 0 || u > 1)
-		return false;
+	if (u < 0 || u > 1)	return false;
 
 	QVector3D qvec = QVector3D::crossProduct(tvec, v0v1);
 
@@ -89,8 +85,8 @@ bool CTriangle::Intersects(const QVector3D &origin, const QVector3D &dir) const
 	if (v < 0 || u + v > 1)
 		return false;
 
-	// intersect point float t = QVector3D::dotProduct(v0v2, qvec) * invDet;
+	float t = QVector3D::dotProduct(v0v2, qvec) * invDet;
 
-	return true;
+	return t >= 0.0f;
 }
 

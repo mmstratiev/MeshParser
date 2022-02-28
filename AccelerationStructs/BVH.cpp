@@ -1,5 +1,6 @@
 #include "BVH.h"
 #include "DCEL/DCEL_Face.h"
+#include <QDebug>
 
 CBVH::CBVH()
 {
@@ -20,9 +21,9 @@ void CBVH::AddLeaf(TDCEL_FacePtr leaf)
 	Root->AddLeaf(leaf);
 }
 
-bool CBVH::RayTrace(QVector3D origin, QVector3D dir) const
+bool CBVH::RayTrace(QVector3D origin, QVector3D dir, std::vector<CTriangle>& outHitTris) const
 {
-	TDCEL_FacePtr	result = nullptr;
+	bool			result = false;
 	TBVH_NodePtr	root = Root.get();
 
 	if(!root) return result;
@@ -38,7 +39,10 @@ bool CBVH::RayTrace(QVector3D origin, QVector3D dir) const
 		CTriangle triangle = leaf->Get();
 		if(triangle.Intersects(origin, dir))
 		{
+			qInfo() << "Intersects" << triangle.Vertices(0) << triangle.Vertices(1) << triangle.Vertices(2) << "Dir" << dir;
 
+			result = true;
+			outHitTris.push_back(triangle);
 		}
 	}
 

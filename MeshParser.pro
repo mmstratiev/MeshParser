@@ -23,7 +23,7 @@ SOURCES += \
     GeometryObject.cpp \
     Math/Triangle.cpp \
     MeshAnalyzer.cpp \
-    MeshReader.cpp \
+    MeshInitializer.cpp \
     MeshSubdivider.cpp \
     OpenGL/Camera3D.cpp \
     OpenGL/InputManager.cpp \
@@ -52,7 +52,7 @@ HEADERS += \
     Math/Shapes.h \
     Math/Triangle.h \
     MeshAnalyzer.h \
-    MeshReader.h \
+    MeshInitializer.h \
     MeshSubdivider.h \
     OpenGL/Camera3D.h \
     OpenGL/InputManager.h \

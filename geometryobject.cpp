@@ -1,5 +1,5 @@
 #include "GeometryObject.h"
-#include "MeshReader.h"
+#include "MeshInitializer.h"
 #include "MeshAnalyzer.h"
 #include "MeshSubdivider.h"
 #include <QJsonDocument>
@@ -170,6 +170,11 @@ void CGeometryObject::Subdivide(ESubdivisionAlgorithm algo)
 	//}
 }
 
+bool CGeometryObject::RayTrace(const QVector3D &origin, const QVector3D &dir, std::vector<CTriangle>& outHitTris)
+{
+	return BoundingVolHierarchy.RayTrace(origin, dir, outHitTris);
+}
+
 void CGeometryObject::BuildOpenGLVertexes()
 {
 	OpenGLVertices.clear();
@@ -232,7 +237,7 @@ void CGeometryObject::Initialize(const QByteArray& rawData)
 	int maxThreadCount	= QThreadPool::globalInstance()->maxThreadCount();
 
 	QJsonObject jsonDataObject		= QJsonDocument::fromJson(rawData).object();
-	qsizetype	trianglesCount		= CMeshReader::GetTrianglesCountRaw(jsonDataObject);
+	qsizetype	trianglesCount		= CMeshInitializer::GetTrianglesCountRaw(jsonDataObject);
 	qsizetype	trianglesPerThread	= trianglesCount / maxThreadCount;
 	qsizetype	remainder			= trianglesCount % maxThreadCount;
 
@@ -254,13 +259,13 @@ void CGeometryObject::Initialize(const QByteArray& rawData)
 		qsizetype endIndex		= beginIndex + trianglesForThread;
 		lastEndIndex			= endIndex;
 
-		CMeshReader *worker = new CMeshReader(*this, jsonDataObject, beginIndex, endIndex);
+		CMeshInitializer *worker = new CMeshInitializer(*this, jsonDataObject, beginIndex, endIndex);
 		worker->setObjectName("InitializerWorker_" + QString::number(i));
 		worker->setAutoDelete(true);
 
 		Workers.insert(worker);
-		connect(worker, &CMeshReader::Finished, this, &CGeometryObject::MeshInitializerFinished, Qt::QueuedConnection);
-		connect(worker, &CMeshReader::MadeProgress, this, &CGeometryObject::ThreadMadeProgress, Qt::QueuedConnection);
+		connect(worker, &CMeshInitializer::Finished, this, &CGeometryObject::MeshInitializerFinished, Qt::QueuedConnection);
+		connect(worker, &CMeshInitializer::MadeProgress, this, &CGeometryObject::ThreadMadeProgress, Qt::QueuedConnection);
 
 		QThreadPool::globalInstance()->start(worker);
 	}

@@ -12,7 +12,7 @@ public:
 	void Init(CBoundingBox rootBounds, size_t depth);
 	void AddLeaf(TDCEL_FacePtr leaf);
 
-	bool RayTrace(QVector3D origin, QVector3D dir) const;
+	bool RayTrace(QVector3D origin, QVector3D dir, std::vector<CTriangle>& outHitTris) const;
 
 private:
 	void SearchForLeavesRecursive(TBVH_NodePtr currentNode,TLeavesSet& outLeaves, std::function<bool(TBVH_NodePtr)> callback) const;

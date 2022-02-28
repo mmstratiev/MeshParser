@@ -64,6 +64,11 @@ double CBoundingBox::GetHeight() const
 	return std::abs(this->GetMinZ() - this->GetMaxZ());
 }
 
+double CBoundingBox::GetWidth() const
+{
+	return std::abs(this->GetMinX() - this->GetMaxX());
+}
+
 bool CBoundingBox::IsPointInBox(const QVector3D& pt) const
 {
 	return	pt.x() >= this->GetMinX() && pt.x() <= this->GetMaxX()

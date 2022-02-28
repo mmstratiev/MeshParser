@@ -29,6 +29,7 @@ public:
 
 	QVector3D	GetCenter() const;
 	double		GetHeight() const;
+	double		GetWidth() const;
 
 	bool IsPointInBox(const QVector3D& pt) const;
 

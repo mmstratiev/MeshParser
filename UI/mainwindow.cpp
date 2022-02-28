@@ -31,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent)
 	ui->OpenGLWidget->setFormat(format);
 	ui->OpenGLWidget->SetObjectToDraw(&GeometryObject);
 	ui->OpenGLWidget->SetShading(ui->SmoothShadingRadio->isChecked() ? EShading::Smooth : EShading::Flat);
+	ui->OpenGLWidget->SetCamera(QVector3D(0, 0, 20.0f), QQuaternion());
 	ui->ProgressBar->hide();
 
 	this->RefreshLightDirecitonOpenGL();
@@ -203,7 +204,16 @@ void MainWindow::on_CheckPointBtn_clicked()
 	if(GeometryObject.IsClosed())
 	{
 		// Mesh is closed, we can easily define what "inside" means, do a complex ray trace
-		ptText = kPtInMeshClosed;
+		std::vector<CTriangle> outTris;
+		QVector3D dir(QRandomGenerator::global()->generateDouble(), QRandomGenerator::global()->generateDouble(), QRandomGenerator::global()->generateDouble());
+
+		if(GeometryObject.RayTrace(ptToCheck, dir.normalized(), outTris))
+		{
+			if(outTris.size() % 2)
+			{
+				ptText = kPtInMeshClosed;
+			}
+		}
 	}
 	else
 	{
@@ -295,13 +305,13 @@ QString MainWindow::GetProgressString() const
 	switch (GeometryObject.GetState())
 	{
 	case CGeometryObject::EState::Initializing:
-		result = "Initializing : %p%";
+		result = "Initializing: %p%";
 		break;
 	case CGeometryObject::EState::Analyzing:
-		result = "Analyzing : %p%";
+		result = "Analyzing: %p%";
 		break;
 	case CGeometryObject::EState::Subdividing:
-		result = "Subdividing : %p%";
+		result = "Subdividing: %p%";
 		break;
 	case CGeometryObject::EState::Idle:
 		break;
@@ -314,9 +324,10 @@ void MainWindow::on_FitToObjectBtn_clicked()
 {
 	if(!GeometryObject.IsInitialized()) return;
 	const CBoundingBox& bounds = GeometryObject.GetBoundingBox();
+
 	double x = bounds.GetCenter().x();
 	double y = bounds.GetCenter().z();
-	double z = (bounds.GetMaxY() + (bounds.GetHeight())) * 1.5f;
+	double z = bounds.GetMaxY() + (std::max(bounds.GetHeight(), bounds.GetWidth()) * 1.25f);
 
 	ui->OpenGLWidget->SetCamera(QVector3D(x, y, z), QQuaternion());
 }

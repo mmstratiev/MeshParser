@@ -1,17 +1,17 @@
-#ifndef MESHREADER_H
-#define MESHREADER_H
+#ifndef MESHINITIALIZER_H
+#define MESHINITIALIZER_H
 
 #include <QObject>
 #include <QRunnable>
 
 #include "GeometryObject.h"
 
-class CMeshReader : public QObject, public QRunnable
+class CMeshInitializer : public QObject, public QRunnable
 {
     Q_OBJECT
 public:
-	explicit CMeshReader(CGeometryObject& inOutObject, const QJsonObject& jsonDataObject, qsizetype beginIndex, qsizetype endIndex, QObject *parent = nullptr);
-	~CMeshReader();
+	explicit CMeshInitializer(CGeometryObject& inOutObject, const QJsonObject& jsonDataObject, qsizetype beginIndex, qsizetype endIndex, QObject *parent = nullptr);
+	~CMeshInitializer();
 
 signals:
 	void Finished();
@@ -44,4 +44,4 @@ private:
 	qsizetype				EndIndex	= 0;
 };
 
-#endif // MESHREADER_H
+#endif // MESHINITIALIZER_H

@@ -26,7 +26,7 @@ using TOnIdleCallback = std::function<void()>;
 class CGeometryObject : public QObject
 {
 	Q_OBJECT
-	friend class CMeshReader;
+	friend class CMeshInitializer;
 	friend class CMeshAnalyzer;
 	friend class CMeshSubdivider;
 
@@ -66,6 +66,7 @@ public:
 	bool		IsClosed() const;
 
 	void		Subdivide(ESubdivisionAlgorithm algo);
+	bool		RayTrace(const QVector3D& origin, const QVector3D& dir, std::vector<CTriangle>& outHitTris);
 
 	// OpenGL methods
 	void			BuildOpenGLVertexes();

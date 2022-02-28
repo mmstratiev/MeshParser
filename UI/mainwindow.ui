@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1179</width>
-    <height>783</height>
+    <width>1194</width>
+    <height>745</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -119,7 +119,7 @@
          <item>
           <widget class="QPushButton" name="FitToObjectBtn">
            <property name="text">
-            <string>Fit to object</string>
+            <string>Fit camera to object</string>
            </property>
           </widget>
          </item>
@@ -573,6 +573,9 @@
                 </item>
                 <item>
                  <widget class="QDoubleSpinBox" name="PtXBox">
+                  <property name="minimum">
+                   <double>-99999.000000000000000</double>
+                  </property>
                   <property name="maximum">
                    <double>99999.990000000005239</double>
                   </property>
@@ -591,6 +594,9 @@
                 </item>
                 <item>
                  <widget class="QDoubleSpinBox" name="PtYBox">
+                  <property name="minimum">
+                   <double>-99999.000000000000000</double>
+                  </property>
                   <property name="maximum">
                    <double>99999.990000000005239</double>
                   </property>
@@ -609,6 +615,9 @@
                 </item>
                 <item>
                  <widget class="QDoubleSpinBox" name="PtZBox">
+                  <property name="minimum">
+                   <double>-99999.000000000000000</double>
+                  </property>
                   <property name="maximum">
                    <double>99999.990000000005239</double>
                   </property>
@@ -666,7 +675,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1179</width>
+     <width>1194</width>
      <height>21</height>
     </rect>
    </property>
