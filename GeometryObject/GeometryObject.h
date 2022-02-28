@@ -10,10 +10,15 @@
 #include "AccelerationStructs/BVH.h"
 #include "DCEL/DCEL.h"
 #include "OpenGL/OpenGLVertex.h"
-#include "Datatypes.h"
 #include "AccelerationStructs/BoundingBox.h"
 
 class QByteArray;
+
+enum class ESubdivisionAlgorithm
+{
+	Simple,
+	Loop,
+};
 
 struct SVertex
 {

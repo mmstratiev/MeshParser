@@ -6,9 +6,9 @@
 #include <QQuaternion>
 
 #include "GeometryObject.h"
-#include "MeshInitializer.h"
-#include "MeshAnalyzer.h"
-#include "MeshSubdivider.h"
+#include "ThreadWorkers/MeshInitializer.h"
+#include "ThreadWorkers/MeshAnalyzer.h"
+#include "ThreadWorkers/MeshSubdivider.h"
 
 CGeometryObject::CGeometryObject()
 {

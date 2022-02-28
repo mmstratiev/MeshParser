@@ -4,7 +4,7 @@
 #include <QDialog>
 #include <QTableWidget>
 
-#include "GeometryObject.h"
+#include "GeometryObject/GeometryObject.h"
 
 namespace Ui {
 	class DlgVertexNormals;

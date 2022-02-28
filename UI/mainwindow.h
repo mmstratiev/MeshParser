@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <QSharedDataPointer>
 
-#include "GeometryObject.h"
+#include "GeometryObject/GeometryObject.h"
 #include "DlgVertexNormals.h"
 
 QT_BEGIN_NAMESPACE

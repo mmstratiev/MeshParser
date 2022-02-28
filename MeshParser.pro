@@ -20,11 +20,11 @@ SOURCES += \
     DCEL/Iterators/FaceVerticesIterator.cpp \
     DCEL/Iterators/VertexFacesIterator.cpp \
     DCEL/Iterators/VertexVerticesIterator.cpp \
-    GeometryObject.cpp \
+    GeometryObject/GeometryObject.cpp \
+    GeometryObject/ThreadWorkers/MeshAnalyzer.cpp \
+    GeometryObject/ThreadWorkers/MeshInitializer.cpp \
+    GeometryObject/ThreadWorkers/MeshSubdivider.cpp \
     Math/Triangle.cpp \
-    MeshAnalyzer.cpp \
-    MeshInitializer.cpp \
-    MeshSubdivider.cpp \
     OpenGL/Camera3D.cpp \
     OpenGL/InputManager.cpp \
     OpenGL/OpenGLVertex.cpp \
@@ -47,13 +47,12 @@ HEADERS += \
     DCEL/Iterators/FaceVerticesIterator.h \
     DCEL/Iterators/VertexFacesIterator.h \
     DCEL/Iterators/VertexVerticesIterator.h \
-    Datatypes.h \
-    GeometryObject.h \
+    GeometryObject/GeometryObject.h \
+    GeometryObject/ThreadWorkers/MeshAnalyzer.h \
+    GeometryObject/ThreadWorkers/MeshInitializer.h \
+    GeometryObject/ThreadWorkers/MeshSubdivider.h \
     Math/Shapes.h \
     Math/Triangle.h \
-    MeshAnalyzer.h \
-    MeshInitializer.h \
-    MeshSubdivider.h \
     OpenGL/Camera3D.h \
     OpenGL/InputManager.h \
     OpenGL/OpenGLVertex.h \

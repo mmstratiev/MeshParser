@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QRunnable>
 
-#include "GeometryObject.h"
+#include "GeometryObject/GeometryObject.h"
 
 class CMeshSubdivider : public QObject, public QRunnable
 {

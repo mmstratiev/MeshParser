@@ -7,7 +7,7 @@
 #include "Camera3D.h"
 #include "OpenGLVertex.h"
 #include "InputManager.h"
-#include "GeometryObject.h"
+#include "GeometryObject/GeometryObject.h"
 
 enum class EShading
 {
