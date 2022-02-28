@@ -72,6 +72,9 @@
          <property name="invertedAppearance">
           <bool>false</bool>
          </property>
+         <property name="format">
+          <string>%p%</string>
+         </property>
         </widget>
        </item>
        <item>
@@ -335,25 +338,49 @@
                <number>1</number>
               </property>
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_15">
-                <item>
-                 <widget class="QDoubleSpinBox" name="doubleSpinBox"/>
-                </item>
-               </layout>
+               <widget class="QDoubleSpinBox" name="LightX">
+                <property name="minimum">
+                 <double>-1.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>1.000000000000000</double>
+                </property>
+                <property name="singleStep">
+                 <double>0.100000000000000</double>
+                </property>
+               </widget>
               </item>
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_13">
-                <item>
-                 <widget class="QDoubleSpinBox" name="doubleSpinBox_2"/>
-                </item>
-               </layout>
+               <widget class="QDoubleSpinBox" name="LightY">
+                <property name="minimum">
+                 <double>-1.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>1.000000000000000</double>
+                </property>
+                <property name="singleStep">
+                 <double>0.100000000000000</double>
+                </property>
+                <property name="value">
+                 <double>-0.710000000000000</double>
+                </property>
+               </widget>
               </item>
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_14">
-                <item>
-                 <widget class="QDoubleSpinBox" name="doubleSpinBox_3"/>
-                </item>
-               </layout>
+               <widget class="QDoubleSpinBox" name="LightZ">
+                <property name="minimum">
+                 <double>-1.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>1.000000000000000</double>
+                </property>
+                <property name="singleStep">
+                 <double>0.100000000000000</double>
+                </property>
+                <property name="value">
+                 <double>-0.710000000000000</double>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>
@@ -365,28 +392,98 @@
               <item>
                <widget class="QLabel" name="label_12">
                 <property name="text">
-                 <string>TextLabel</string>
+                 <string>X</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QLabel" name="label_10">
                 <property name="text">
-                 <string>TextLabel</string>
+                 <string>Y</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QLabel" name="label_11">
                 <property name="text">
-                 <string>TextLabel</string>
+                 <string>Z</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
                 </property>
                </widget>
               </item>
              </layout>
             </item>
             <item>
-             <widget class="QDial" name="dial"/>
+             <layout class="QVBoxLayout" name="verticalLayout_11">
+              <property name="spacing">
+               <number>6</number>
+              </property>
+              <item>
+               <widget class="QSlider" name="LightSliderX">
+                <property name="minimum">
+                 <number>-100</number>
+                </property>
+                <property name="maximum">
+                 <number>100</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSlider" name="LightSliderY">
+                <property name="minimum">
+                 <number>-100</number>
+                </property>
+                <property name="maximum">
+                 <number>100</number>
+                </property>
+                <property name="value">
+                 <number>-71</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="invertedAppearance">
+                 <bool>false</bool>
+                </property>
+                <property name="invertedControls">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSlider" name="LightSliderZ">
+                <property name="minimum">
+                 <number>-100</number>
+                </property>
+                <property name="maximum">
+                 <number>100</number>
+                </property>
+                <property name="value">
+                 <number>-71</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="invertedAppearance">
+                 <bool>false</bool>
+                </property>
+                <property name="invertedControls">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
           </widget>

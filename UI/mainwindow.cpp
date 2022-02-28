@@ -30,6 +30,8 @@ MainWindow::MainWindow(QWidget *parent)
 	ui->OpenGLWidget->setFormat(format);
 	ui->OpenGLWidget->SetObjectToDraw(&GeometryObject);
 	ui->OpenGLWidget->SetShading(ui->SmoothShadingRadio->isChecked() ? EShading::Smooth : EShading::Flat);
+
+	this->RefreshLightDirecitonOpenGL();
 }
 
 MainWindow::~MainWindow()
@@ -199,5 +201,62 @@ void MainWindow::on_FlatShadingRadio_toggled(bool checked)
 {
 	if(!checked) return;
 	ui->OpenGLWidget->SetShading(EShading::Flat);
+}
+
+
+void MainWindow::on_LightX_valueChanged(double arg1)
+{
+	this->RefreshLigthDirectionSliders();
+	this->RefreshLightDirecitonOpenGL();
+}
+
+void MainWindow::on_LightY_valueChanged(double arg1)
+{
+	this->RefreshLigthDirectionSliders();
+	this->RefreshLightDirecitonOpenGL();
+}
+
+void MainWindow::on_LightZ_valueChanged(double arg1)
+{
+	this->RefreshLigthDirectionSliders();
+	this->RefreshLightDirecitonOpenGL();
+}
+
+void MainWindow::RefreshLigthDirectionBoxes()
+{
+	ui->LightX->setValue((double)ui->LightSliderX->value() / 100.0f);
+	ui->LightY->setValue((double)ui->LightSliderY->value() / 100.0f);
+	ui->LightZ->setValue((double)ui->LightSliderZ->value() / 100.0f);
+}
+
+void MainWindow::RefreshLigthDirectionSliders()
+{
+	ui->LightSliderX->setValue(ui->LightX->value() * 100);
+	ui->LightSliderY->setValue(ui->LightY->value() * 100);
+	ui->LightSliderZ->setValue(ui->LightZ->value() * 100);
+}
+
+void MainWindow::RefreshLightDirecitonOpenGL()
+{
+	QVector3D dir(ui->LightX->value(), ui->LightY->value(), ui->LightZ->value());
+	ui->OpenGLWidget->SetLightDirection(dir.normalized());
+}
+
+void MainWindow::on_LightSliderX_valueChanged(int value)
+{
+	this->RefreshLigthDirectionBoxes();
+	this->RefreshLightDirecitonOpenGL();
+}
+
+void MainWindow::on_LightSliderY_valueChanged(int value)
+{
+	this->RefreshLigthDirectionBoxes();
+	this->RefreshLightDirecitonOpenGL();
+}
+
+void MainWindow::on_LightSliderZ_valueChanged(int value)
+{
+	this->RefreshLigthDirectionBoxes();
+	this->RefreshLightDirecitonOpenGL();
 }
 

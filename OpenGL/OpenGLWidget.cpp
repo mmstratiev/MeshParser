@@ -44,6 +44,7 @@ void COpenGLWidget::initializeGL()
 		ModelToWorldCacheID = OpenGLShader->uniformLocation("ModelToWorld");
 		WorldToViewCacheID = OpenGLShader->uniformLocation("WorldToView");
 		ShadingCacheID = OpenGLShader->uniformLocation("Shading");
+		LightDirCacheID = OpenGLShader->uniformLocation("LightDir");
 
 		if(objectToDraw->IsInitialized())
 		{
@@ -90,6 +91,7 @@ void COpenGLWidget::paintGL()
 	OpenGLShader->bind();
 	OpenGLShader->setUniformValue(WorldToViewCacheID, Projection);
 	OpenGLShader->setUniformValue(ShadingCacheID, (int)Shading);
+	OpenGLShader->setUniformValue(LightDirCacheID, LightDir);
 	{
 		OpenGLVertArray.bind();
 		OpenGLShader->setUniformValue(ModelToWorldCacheID, Camera.ToMatrix().inverted(NULL));
@@ -136,6 +138,11 @@ void COpenGLWidget::SetObjectToDraw(CGeometryObject *objectToDraw)
 void COpenGLWidget::SetShading(EShading shading)
 {
 	Shading = shading;
+}
+
+void COpenGLWidget::SetLightDirection(const QVector3D &dir)
+{
+	LightDir = dir;
 }
 
 void COpenGLWidget::mousePressEvent(QMouseEvent *event)

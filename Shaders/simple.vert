@@ -8,11 +8,10 @@ out vec4 vColor;
 uniform mat4 ModelToWorld;
 uniform mat4 WorldToView;
 uniform int Shading;
+uniform vec3 LightDir;
 void main()
 {
-  vec3 dir = vec3(0.7071067811865475, 0, -0.7071067811865475);
-
   gl_Position = WorldToView * ModelToWorld * vec4(position, 1.0);
-  float diffuse = .5 + dot(Shading == 0 ? FlatNormal : SmoothNormal ,dir);
+  float diffuse = .5 + dot(Shading == 0 ? FlatNormal : SmoothNormal, LightDir);
   vColor = vec4(diffuse * color, 1.0);
 }

@@ -33,6 +33,7 @@ class COpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 
 		void SetObjectToDraw(CGeometryObject *objectToDraw);
 		void SetShading(EShading shading);
+		void SetLightDirection(const QVector3D& dir);
 
 		void mousePressEvent(QMouseEvent *event) override;
 		void mouseReleaseEvent(QMouseEvent *event) override;
@@ -54,9 +55,11 @@ class COpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 		int ModelToWorldCacheID;
 		int WorldToViewCacheID;
 		int ShadingCacheID;
+		int LightDirCacheID;
 
 		QMatrix4x4	Projection;
 		CCamera3D	Camera;
+		QVector3D	LightDir = QVector3D(0, 0, -1);
 	};
 
 #endif // COPENGLWIDGET_H
