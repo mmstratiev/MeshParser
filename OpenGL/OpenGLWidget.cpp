@@ -18,9 +18,6 @@ COpenGLWidget::~COpenGLWidget()
 
 void COpenGLWidget::initializeGL()
 {
-	// Builds the vertexes of the ObjectToDraw based on it's given parameters
-	objectToDraw->BuildOpenGLVertexes();
-
 	initializeOpenGLFunctions();
 
 	// Starts the update "loop"
@@ -53,8 +50,8 @@ void COpenGLWidget::initializeGL()
 			OpenGLBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
 
 			//Allocates for the vertexes array
-			const CVertex *sg_vertexes = objectToDraw->GetOpenGLVerticesBegin();
-			OpenGLBuffer.allocate(sg_vertexes, sizeof(CVertex)*objectToDraw->GetOpenGLVerticesCount());
+			const COpenGLVertex *sg_vertexes = objectToDraw->GetOpenGLVerticesBegin();
+			OpenGLBuffer.allocate(sg_vertexes, sizeof(COpenGLVertex)*objectToDraw->GetOpenGLVerticesCount());
 		}
 
 		// Setting up OpenGL VertexArrayObject
@@ -64,10 +61,10 @@ void COpenGLWidget::initializeGL()
 		OpenGLShader->enableAttributeArray(1);
 		OpenGLShader->enableAttributeArray(2);
 		OpenGLShader->enableAttributeArray(3);
-		OpenGLShader->setAttributeBuffer(0, GL_FLOAT, CVertex::PositionOffset(), CVertex::PositionTupleSize, CVertex::Stride());
-		OpenGLShader->setAttributeBuffer(1, GL_FLOAT, CVertex::ColorOffset(), CVertex::ColorTupleSize, CVertex::Stride());
-		OpenGLShader->setAttributeBuffer(2, GL_FLOAT, CVertex::FlatNormalOffset(), CVertex::FlatNormalTupleSize, CVertex::Stride());
-		OpenGLShader->setAttributeBuffer(3, GL_FLOAT, CVertex::SmoothNormalOffset(), CVertex::SmoothNormalTupleSize, CVertex::Stride());
+		OpenGLShader->setAttributeBuffer(0, GL_FLOAT, COpenGLVertex::PositionOffset(), COpenGLVertex::PositionTupleSize, COpenGLVertex::Stride());
+		OpenGLShader->setAttributeBuffer(1, GL_FLOAT, COpenGLVertex::ColorOffset(), COpenGLVertex::ColorTupleSize, COpenGLVertex::Stride());
+		OpenGLShader->setAttributeBuffer(2, GL_FLOAT, COpenGLVertex::FlatNormalOffset(), COpenGLVertex::FlatNormalTupleSize, COpenGLVertex::Stride());
+		OpenGLShader->setAttributeBuffer(3, GL_FLOAT, COpenGLVertex::SmoothNormalOffset(), COpenGLVertex::SmoothNormalTupleSize, COpenGLVertex::Stride());
 
 		// Releasing
 		OpenGLVertArray.release();

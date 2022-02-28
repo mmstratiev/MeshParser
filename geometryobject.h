@@ -9,7 +9,7 @@
 
 #include "AccelerationStructs/BVH.h"
 #include "DCEL/DCEL.h"
-#include "OpenGL/Vertex.h"
+#include "OpenGL/OpenGLVertex.h"
 #include "Datatypes.h"
 #include "AccelerationStructs/BoundingBox.h"
 
@@ -43,7 +43,6 @@ public:
 
 	// Async methods
 	void		Init(const QByteArray& jsonByteArr);
-	void		Init(CDCEL& edgeList);
 
 	bool		IsInitialized() const;
 	void		WhenIdle(TOnIdleCallback callback) const;
@@ -69,9 +68,8 @@ public:
 	bool		RayTrace(const QVector3D& origin, const QVector3D& dir, std::vector<CTriangle>& outHitTris);
 
 	// OpenGL methods
-	void			BuildOpenGLVertexes();
 	qsizetype		GetOpenGLVerticesCount() const;
-	CVertex*		GetOpenGLVerticesBegin();
+	COpenGLVertex*	GetOpenGLVerticesBegin();
 
 signals:
 	void		StateChanged(CGeometryObject::EState newState);
@@ -92,6 +90,7 @@ private:
 private slots:
 	void		MeshInitializerFinished();
 	void		MeshAnalyzerFinished();
+	void		MeshSubdividerFinished();
 
 	// UI
 	void		ThreadMadeProgress();
@@ -101,7 +100,7 @@ private:
 	CDCEL		EdgeList;
 	CBVH		BoundingVolHierarchy;
 
-	std::vector<CVertex> OpenGLVertices;
+	std::vector<COpenGLVertex> OpenGLVertices;
 
 	CBoundingBox	BoundingBox;
 	double			MinTriangleArea	= std::numeric_limits<double>().max();
@@ -112,9 +111,13 @@ private:
 	QMutex					Mutex;
 	QSet<class QObject*>	Workers;
 
-	// Temp values which are used to move information from one thread to another
-	int MaxProgress = 0;
-	int Progress	= 0;
+	// Temp values which are used to share information between threads
+	std::unordered_map<TDCEL_EdgeID, TDCEL_VertID, TDCEL_EdgeID> TempEdgeToNewVert;
+	CDCEL				TempEdgeList;
+	std::atomic<size_t>	TempLastOddVertID;
+
+	std::atomic<int> TempMaxProgress	= 0;
+	std::atomic<int> TempProgress		= 0;
 };
 
 #endif // GEOMETRYOBJECT_H

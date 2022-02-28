@@ -11,7 +11,6 @@ class CMeshInitializer : public QObject, public QRunnable
     Q_OBJECT
 public:
 	explicit CMeshInitializer(CGeometryObject& inOutObject, const QJsonObject& jsonDataObject, qsizetype beginIndex, qsizetype endIndex, QObject *parent = nullptr);
-	~CMeshInitializer();
 
 signals:
 	void Finished();

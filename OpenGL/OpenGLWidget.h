@@ -5,7 +5,7 @@
 #include <QtOpenGLWidgets/QOpenGLWidget>
 
 #include "Camera3D.h"
-#include "Vertex.h"
+#include "OpenGLVertex.h"
 #include "InputManager.h"
 #include "GeometryObject.h"
 
@@ -46,7 +46,7 @@ class COpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 	private:
 		EShading				Shading	= EShading::Flat;
 		CGeometryObject			*objectToDraw;
-		std::vector<CVertex>	*initializeVertex();
+		std::vector<COpenGLVertex>	*initializeVertex();
 
 		QOpenGLBuffer				OpenGLBuffer;
 		QOpenGLVertexArrayObject	OpenGLVertArray;

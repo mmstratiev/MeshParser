@@ -31,7 +31,6 @@ private:
 	ESubdivisionAlgorithm	Algo;
 	qsizetype				BeginIndex	= 0;
 	qsizetype				EndIndex	= 0;
-	CDCEL					Destination;
 
 };
 

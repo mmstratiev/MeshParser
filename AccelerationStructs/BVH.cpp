@@ -39,8 +39,6 @@ bool CBVH::RayTrace(QVector3D origin, QVector3D dir, std::vector<CTriangle>& out
 		CTriangle triangle = leaf->Get();
 		if(triangle.Intersects(origin, dir))
 		{
-			qInfo() << "Intersects" << triangle.Vertices(0) << triangle.Vertices(1) << triangle.Vertices(2) << "Dir" << dir;
-
 			result = true;
 			outHitTris.push_back(triangle);
 		}

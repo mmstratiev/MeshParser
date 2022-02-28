@@ -11,33 +11,23 @@ CMeshSubdivider::CMeshSubdivider(CGeometryObject &inOutObject, ESubdivisionAlgor
 
 void CMeshSubdivider::run()
 {
-	// Starting the thread
-	//qInfo() << "Starting" << this << QThread::currentThread();
-
 	this->Work();
-
-	//qInfo() << "Finishing" << this << QThread::currentThread();
 	emit Finished();
-
-	// todo: remove auto deletion and this sleep
-	QThread::currentThread()->msleep(100);
-	// Finishing the thread
+	QThread::currentThread()->msleep(25);
 }
 
 void CMeshSubdivider::Work()
 {
-	std::unordered_map<TDCEL_EdgeID, TDCEL_VertID, TDCEL_EdgeID> EdgeToVerts;
-
 	CDCEL& Source			= GeometryObject.EdgeList;
-	size_t lastOddVertID	= Source.GetVerticesCount();
+	CDCEL& Destination		= GeometryObject.TempEdgeList;
 
-	size_t facesCount = Source.GetFacesCount();
-	for(size_t faceIndex = 0; faceIndex < facesCount; faceIndex++)
+	for(qsizetype faceIndex = BeginIndex; faceIndex < EndIndex; faceIndex++)
 	{
+		QMutexLocker locker(&GeometryObject.Mutex);
 		TDCEL_FacePtr currentFace = Source.GetFace(faceIndex);
 		if(!currentFace)
 		{
-			GeometryObject.MaxProgress--;
+			GeometryObject.TempMaxProgress--;
 			emit MadeProgress();
 			continue;
 		};
@@ -54,15 +44,16 @@ void CMeshSubdivider::Work()
 			// 2. Create odd(new) verts
 			TDCEL_EdgeID origEdgeID = (*edgeIt)->GetID();
 
-			auto mapIt = EdgeToVerts.find(origEdgeID.GetTwin());
-			if(mapIt == EdgeToVerts.end())
+			auto mapIt = GeometryObject.TempEdgeToNewVert.find(origEdgeID.GetTwin());
+			if(mapIt == GeometryObject.TempEdgeToNewVert.end())
 			{
-				EdgeToVerts[origEdgeID] = Destination.AddVertex(lastOddVertID++, this->GetOddVertPosition(*edgeIt))->GetID();
+				qsizetype newVertID = GeometryObject.TempLastOddVertID++;
+				GeometryObject.TempEdgeToNewVert[origEdgeID] = Destination.AddVertex(newVertID, this->GetOddVertPosition(*edgeIt))->GetID();
 			}
 			else
 			{
 				// Original twin edge was already subdivided, assign that vertex
-				EdgeToVerts[origEdgeID] = Destination.GetVertex(mapIt->second)->GetID();
+				GeometryObject.TempEdgeToNewVert[origEdgeID] = Destination.GetVertex(mapIt->second)->GetID();
 			}
 
 			++edgeIt;
@@ -74,8 +65,8 @@ void CMeshSubdivider::Work()
 		while(!edgeIt.End())
 		{
 			TDCEL_EdgeID origEdgeID = (*edgeIt)->GetID();
-			auto mapItCurr= EdgeToVerts.find(origEdgeID);
-			auto mapItPrev = EdgeToVerts.find((*edgeIt)->Prev()->GetID());
+			auto mapItCurr= GeometryObject.TempEdgeToNewVert.find(origEdgeID);
+			auto mapItPrev = GeometryObject.TempEdgeToNewVert.find((*edgeIt)->Prev()->GetID());
 
 			TDCEL_VertID vertID1 = Destination.GetVertex(origEdgeID.ID1)->GetID();
 			TDCEL_VertID vertID2 = mapItCurr->second;
@@ -87,17 +78,15 @@ void CMeshSubdivider::Work()
 
 		// 4. Connect odd verts to form inner triangle
 		edgeIt.Reset();
-		TDCEL_VertID innerVertID1 = EdgeToVerts.find((*edgeIt)->GetID())->second;
-		TDCEL_VertID innerVertID2 = EdgeToVerts.find((*edgeIt)->Next()->GetID())->second;
-		TDCEL_VertID innerVertID3 = EdgeToVerts.find((*edgeIt)->Prev()->GetID())->second;
+		TDCEL_VertID innerVertID1 = GeometryObject.TempEdgeToNewVert.find((*edgeIt)->GetID())->second;
+		TDCEL_VertID innerVertID2 = GeometryObject.TempEdgeToNewVert.find((*edgeIt)->Next()->GetID())->second;
+		TDCEL_VertID innerVertID3 = GeometryObject.TempEdgeToNewVert.find((*edgeIt)->Prev()->GetID())->second;
+
 
 		Destination.Connect(innerVertID1, innerVertID2, innerVertID3);
-
-		GeometryObject.Progress++;
+		GeometryObject.TempProgress++;
 		emit MadeProgress();
 	}
-
-	Source = Destination;
 }
 
 QVector3D CMeshSubdivider::GetEvenVertPosition(TDCEL_VertPtr originalVert) const

@@ -1,13 +1,14 @@
-#include "GeometryObject.h"
-#include "MeshInitializer.h"
-#include "MeshAnalyzer.h"
-#include "MeshSubdivider.h"
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QThreadPool>
 #include <QThread>
 #include <QMutexLocker>
 #include <QQuaternion>
+
+#include "GeometryObject.h"
+#include "MeshInitializer.h"
+#include "MeshAnalyzer.h"
+#include "MeshSubdivider.h"
 
 CGeometryObject::CGeometryObject()
 {
@@ -16,12 +17,6 @@ CGeometryObject::CGeometryObject()
 void CGeometryObject::Init(const QByteArray &jsonByteArr)
 {
 	this->Initialize(jsonByteArr);
-}
-
-void CGeometryObject::Init(CDCEL& edgeList)
-{
-	EdgeList = edgeList;
-	this->Analyze();
 }
 
 bool CGeometryObject::IsInitialized() const
@@ -124,50 +119,42 @@ void CGeometryObject::Subdivide(ESubdivisionAlgorithm algo)
 {
 	this->SetState(EState::Subdividing);
 
-	MaxProgress						= this->GetTrianglesCount();
-	Progress						= 0;
+	// We want to use ALL available threads
+	int maxThreadCount	= QThreadPool::globalInstance()->maxThreadCount();
 
-	CMeshSubdivider *worker = new CMeshSubdivider(*this, algo, 0, 0);
-	worker->setObjectName("SubdividerWorker_" + QString::number(0));
-	worker->setAutoDelete(true);
+	qsizetype trianglesCount		= this->GetTrianglesCount();
+	qsizetype trianglesPerThread	= trianglesCount / maxThreadCount;
+	qsizetype remainder				= trianglesCount % maxThreadCount;
 
-	Workers.insert(worker);
-	connect(worker, &CMeshSubdivider::Finished, this, &CGeometryObject::MeshInitializerFinished, Qt::QueuedConnection);
-	connect(worker, &CMeshSubdivider::MadeProgress, this, &CGeometryObject::ThreadMadeProgress, Qt::QueuedConnection);
+	TempMaxProgress						= trianglesCount;
+	TempProgress						= 0;
+	TempLastOddVertID					= this->GetVerticesCount();
 
-	QThreadPool::globalInstance()->start(worker);
+	qsizetype lastEndIndex			= 0;
+	for(int i = 0; i < maxThreadCount; i++)
+	{
+		// remainder can never be more than the divisor(num of threads), so this is a safe and efficent way to distribute triangles
+		qsizetype trianglesForThread = trianglesPerThread;
+		if(remainder > 0)
+		{
+			trianglesForThread++;
+			remainder--;
+		}
 
-	//// We want to use ALL available threads
-	//int maxThreadCount	= QThreadPool::globalInstance()->maxThreadCount();
+		qsizetype beginIndex	= lastEndIndex;
+		qsizetype endIndex		= beginIndex + trianglesForThread;
+		lastEndIndex			= endIndex;
 
-	//qsizetype trianglesCount		= this->GetTrianglesCount();
-	//qsizetype trianglesPerThread	= trianglesCount / maxThreadCount;
-	//qsizetype remainder				= trianglesCount % maxThreadCount;
+		CMeshSubdivider *worker = new CMeshSubdivider(*this, algo, beginIndex, endIndex);
+		worker->setObjectName("SubdividerWorker_" + QString::number(i));
+		worker->setAutoDelete(true);
 
-	//qsizetype lastEndIndex			= 0;
-	//for(int i = 0; i < maxThreadCount; i++)
-	//{
-	//	// remainder can never be more than the divisor(num of threads), so this is a safe and efficent way to distribute triangles
-	//	qsizetype trianglesForThread = trianglesPerThread;
-	//	if(remainder > 0)
-	//	{
-	//		trianglesForThread++;
-	//		remainder--;
-	//	}
+		Workers.insert(worker);
+		connect(worker, &CMeshSubdivider::Finished, this, &CGeometryObject::MeshSubdividerFinished, Qt::QueuedConnection);
+		connect(worker, &CMeshSubdivider::MadeProgress, this, &CGeometryObject::ThreadMadeProgress, Qt::QueuedConnection);
 
-	//	qsizetype beginIndex	= lastEndIndex;
-	//	qsizetype endIndex		= beginIndex + trianglesForThread;
-	//	lastEndIndex			= endIndex;
-
-	//	CMeshSubdivider *worker = new CMeshSubdivider(*this, beginIndex, endIndex);
-	//	worker->setObjectName("SubdividerWorker_" + QString::number(i));
-	//	worker->setAutoDelete(true);
-
-	//	Workers.insert(worker);
-	//	connect(worker, &CMeshSubdivider::Finished, this, &CGeometryObject::MeshInitializerFinished, Qt::QueuedConnection);
-
-	//	QThreadPool::globalInstance()->start(worker);
-	//}
+		QThreadPool::globalInstance()->start(worker);
+	}
 }
 
 bool CGeometryObject::RayTrace(const QVector3D &origin, const QVector3D &dir, std::vector<CTriangle>& outHitTris)
@@ -175,47 +162,12 @@ bool CGeometryObject::RayTrace(const QVector3D &origin, const QVector3D &dir, st
 	return BoundingVolHierarchy.RayTrace(origin, dir, outHitTris);
 }
 
-void CGeometryObject::BuildOpenGLVertexes()
-{
-	OpenGLVertices.clear();
-	qsizetype trisCount = this->GetTrianglesCount();
-	for (qsizetype triangleID = 0; triangleID < trisCount ; triangleID++)
-	{
-		CTriangle triangle;
-		if(this->GetTriangle(triangleID, triangle))
-		{
-			auto flipZY = [](QVector3D in) -> QVector3D
-			{
-				return QQuaternion::fromEulerAngles(-90, 0, 180).rotatedVector(in);
-			};
-			SVertex vertex;
-
-			this->GetVertex(this->GetTriangleVertID(triangleID, 0), vertex);
-			CVertex vert1(flipZY(vertex.Location), triangle.GetNormal(), vertex.Normal);
-
-			this->GetVertex(this->GetTriangleVertID(triangleID, 1), vertex);
-			CVertex vert2(flipZY(vertex.Location), triangle.GetNormal(), vertex.Normal);
-
-			this->GetVertex(this->GetTriangleVertID(triangleID, 2), vertex);
-			CVertex vert3(flipZY(vertex.Location), triangle.GetNormal(), vertex.Normal);
-
-			OpenGLVertices.push_back(vert1);
-			OpenGLVertices.push_back(vert2);
-			OpenGLVertices.push_back(vert3);
-		}
-		else
-		{
-			qInfo() << triangleID;
-		}
-	}
-}
-
 qsizetype CGeometryObject::GetOpenGLVerticesCount() const
 {
 	return this->OpenGLVertices.size();
 }
 
-CVertex *CGeometryObject::GetOpenGLVerticesBegin()
+COpenGLVertex *CGeometryObject::GetOpenGLVerticesBegin()
 {
 	return &this->OpenGLVertices[0];
 }
@@ -241,8 +193,8 @@ void CGeometryObject::Initialize(const QByteArray& rawData)
 	qsizetype	trianglesPerThread	= trianglesCount / maxThreadCount;
 	qsizetype	remainder			= trianglesCount % maxThreadCount;
 
-	MaxProgress						= trianglesCount;
-	Progress						= 0;
+	TempMaxProgress						= trianglesCount;
+	TempProgress						= 0;
 
 	qsizetype lastEndIndex			= 0;
 	for(int i = 0; i < maxThreadCount; i++)
@@ -286,8 +238,8 @@ void CGeometryObject::Analyze()
 	qsizetype trianglesPerThread	= trianglesCount / maxThreadCount;
 	qsizetype remainder				= trianglesCount % maxThreadCount;
 
-	MaxProgress						= trianglesCount;
-	Progress						= 0;
+	TempMaxProgress						= trianglesCount;
+	TempProgress						= 0;
 
 	qsizetype lastEndIndex			= 0;
 	for(int i = 0; i < maxThreadCount; i++)
@@ -324,6 +276,8 @@ void CGeometryObject::ClearInitializedData()
 
 void CGeometryObject::ClearAnalyzedData()
 {
+	OpenGLVertices.clear();
+
 	MinTriangleArea	= std::numeric_limits<double>().max();
 	MaxTriangleArea	= std::numeric_limits<double>().min();
 	TotalArea		= 0.0f;
@@ -348,7 +302,21 @@ void CGeometryObject::MeshAnalyzerFinished()
 	}
 }
 
+void CGeometryObject::MeshSubdividerFinished()
+{
+	Workers.remove(sender());
+	if(Workers.isEmpty())
+	{
+		EdgeList = std::move(TempEdgeList);
+
+		TempEdgeList.Clear();
+		TempEdgeToNewVert.clear();
+
+		this->Analyze();
+	}
+}
+
 void CGeometryObject::ThreadMadeProgress()
 {
-	emit MadeProgress(Progress, MaxProgress);
+	emit MadeProgress(TempProgress, TempMaxProgress);
 }

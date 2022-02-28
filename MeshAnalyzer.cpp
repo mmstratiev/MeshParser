@@ -2,7 +2,7 @@
 
 #include <QThread>
 #include <QMutexLocker>
-#include <QDebug>
+#include <QQuaternion>
 
 #include "DCEL/DCEL_Edge.h"
 #include "DCEL/DCEL_Face.h"
@@ -12,32 +12,24 @@ CMeshAnalyzer::CMeshAnalyzer(CGeometryObject& inOutObject, qsizetype beginIndex,
 	, GeometryObject(inOutObject)
 	, BeginIndex(beginIndex)
 	, EndIndex(endIndex)
-{
-	// qInfo() << "Created" << this << QThread::currentThread();
-}
-
-CMeshAnalyzer::~CMeshAnalyzer()
-{
-	//qInfo() << "Destroyed" << this << QThread::currentThread();
-
-}
+{}
 
 void CMeshAnalyzer::Work()
 {
 	for(int triangleIndex = BeginIndex; triangleIndex < EndIndex; triangleIndex++)
 	{
-		QMutexLocker locker(&GeometryObject.Mutex);
 		TDCEL_FacePtr faceToCheck = GeometryObject.EdgeList.GetFace(triangleIndex);
 
 		if(!faceToCheck)
 		{
-			GeometryObject.MaxProgress--;
+			GeometryObject.TempMaxProgress--;
 		}
 		else
 		{
 			CTriangle triangle = faceToCheck->Get();
 			double triangleArea = triangle.GetArea();
 
+			QMutexLocker locker(&GeometryObject.Mutex);
 			GeometryObject.BoundingVolHierarchy.AddLeaf(faceToCheck);
 
 			GeometryObject.MaxTriangleArea	= std::max<double>(GeometryObject.MaxTriangleArea, triangleArea);
@@ -54,24 +46,30 @@ void CMeshAnalyzer::Work()
 					currentEdge = currentEdge->Next();
 				} while(currentEdge != faceToCheck->Edge() && GeometryObject.bIsClosed);
 			}
-			GeometryObject.Progress++;
+			GeometryObject.TempProgress++;
+
+			// OpenGL uses Y as height and Z as depth
+			auto flipZY = [](QVector3D in) -> QVector3D
+			{
+				return QQuaternion::fromEulerAngles(-90, 0, 180).rotatedVector(in);
+			};
+
+			// Build OpenGL array
+			QVector3D triangleNormal = triangle.GetNormal();
+			CFaceVerticesIterator vertIterator = faceToCheck->GetFaceVerticesIterator();
+			while(!vertIterator.End())
+			{
+				GeometryObject.OpenGLVertices.push_back(COpenGLVertex(flipZY((*vertIterator)->Get()), triangleNormal, (*vertIterator)->GetNormal()));
+				++vertIterator;
+			}
 		}
 		emit MadeProgress();
-	//	qInfo() << "Work" << this << QThread::currentThread();
 	}
 }
 
 void CMeshAnalyzer::run()
 {
-	// Starting the thread
-	//qInfo() << "Starting" << this << QThread::currentThread();
-
 	this->Work();
-
-	//qInfo() << "Finishing" << this << QThread::currentThread();
 	emit Finished();
-
-	// todo: remove auto deletion and this sleep
-	QThread::currentThread()->msleep(100);
-	// Finishing the thread
+	QThread::currentThread()->msleep(25);
 }

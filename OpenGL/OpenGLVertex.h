@@ -1,14 +1,14 @@
-#ifndef VERTEX_H
-#define VERTEX_H
+#ifndef OPENGLVERTEX_H
+#define OPENGLVERTEX_H
 
 #include <QVector3D>
 
-class CVertex
+class COpenGLVertex
 {
 public:
-	CVertex();
-	CVertex(const QVector3D &position);
-	CVertex(const QVector3D &position, const QVector3D &flat, const QVector3D &smooth, const QVector3D& color = QVector3D(1.0f, 1.0f, 1.0f));
+	COpenGLVertex();
+	COpenGLVertex(const QVector3D &position);
+	COpenGLVertex(const QVector3D &position, const QVector3D &flat, const QVector3D &smooth, const QVector3D& color = QVector3D(1.0f, 1.0f, 1.0f));
 
 	const QVector3D& Position() const;
 	const QVector3D& Color() const;

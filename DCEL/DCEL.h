@@ -34,10 +34,9 @@ private:
 	TDCEL_EdgePtr	AddEdge(TDCEL_EdgeID ID);
 
 private:
-	// TODO: Should be unique ptrs
-	std::unordered_map<TDCEL_EdgeID, std::shared_ptr<CDCEL_Edge>, SDCEL_EdgeID>	Edges;
-	std::unordered_map<TDCEL_VertID, std::shared_ptr<CDCEL_Vertex>>				Vertices;
-	std::unordered_map<TDCEL_FaceID, std::shared_ptr<CDCEL_Face>>				Faces;
+	std::unordered_map<TDCEL_EdgeID, std::unique_ptr<CDCEL_Edge>, SDCEL_EdgeID>	Edges;
+	std::unordered_map<TDCEL_VertID, std::unique_ptr<CDCEL_Vertex>>				Vertices;
+	std::unordered_map<TDCEL_FaceID, std::unique_ptr<CDCEL_Face>>				Faces;
 };
 
 #endif // DCEL_H

@@ -11,7 +11,6 @@ class CMeshAnalyzer : public QObject, public QRunnable
     Q_OBJECT
 public:
 	explicit CMeshAnalyzer(CGeometryObject& inOutObject, qsizetype beginIndex, qsizetype endIndex, QObject *parent = nullptr);
-	~CMeshAnalyzer();
 
 signals:
 	void Finished();

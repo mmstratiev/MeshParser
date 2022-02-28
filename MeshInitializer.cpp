@@ -11,43 +11,24 @@ CMeshInitializer::CMeshInitializer(CGeometryObject& inOutObject, const QJsonObje
 	, DataObject(jsonDataObject)
 	, BeginIndex(beginIndex)
 	, EndIndex(endIndex)
-{
-	//qInfo() << "Created" << this << QThread::currentThread();
-}
-
-CMeshInitializer::~CMeshInitializer()
-{
-	//qInfo() << "Destroyed" << this << QThread::currentThread();
-
-}
+{}
 
 void CMeshInitializer::run()
 {
-	// Starting the thread
-	//qInfo() << "Starting" << this << QThread::currentThread();
-
 	this->Work();
-
-	//qInfo() << "Finishing" << this << QThread::currentThread();
 	emit Finished();
-
-	// todo: remove auto deletion and this sleep
-	QThread::currentThread()->msleep(100);
-	// Finishing the thread
+	QThread::currentThread()->msleep(25);
 }
 
 void CMeshInitializer::Work()
 {
 	for(int triangleIndex = BeginIndex; triangleIndex < EndIndex; triangleIndex++)
 	{
-		QMutexLocker locker(&GeometryObject.Mutex);
-
 		// Cull degenerate triangles. They add no value to the object and impact performance.
 		CTriangle triangle = CMeshInitializer::GetTriangleRaw(DataObject, triangleIndex);
 		if(triangle.IsDegenerate())
 		{
-			GeometryObject.MaxProgress--;
-			//qInfo() << "Degenerate" << triangleIndex << triangle.Vertices[0] << triangle.Vertices[1] << triangle.Vertices[2];
+			GeometryObject.TempMaxProgress--;
 		}
 		else
 		{
@@ -59,12 +40,13 @@ void CMeshInitializer::Work()
 			TDCEL_VertID vert2ID(CMeshInitializer::GetTriangleVertexIndexRaw(DataObject, triangleIndex, 1));
 			TDCEL_VertID vert3ID(CMeshInitializer::GetTriangleVertexIndexRaw(DataObject, triangleIndex, 2));
 
+			QMutexLocker locker(&GeometryObject.Mutex);
 			GeometryObject.EdgeList.AddVertex(vert1ID, CMeshInitializer::GetVertexRaw(DataObject, vert1ID));
 			GeometryObject.EdgeList.AddVertex(vert2ID, CMeshInitializer::GetVertexRaw(DataObject, vert2ID));
 			GeometryObject.EdgeList.AddVertex(vert3ID, CMeshInitializer::GetVertexRaw(DataObject, vert3ID));
 
 			GeometryObject.EdgeList.Connect(vert1ID, vert2ID, vert3ID);
-			GeometryObject.Progress++;
+			GeometryObject.TempProgress++;
 		}
 		emit MadeProgress();
 	}

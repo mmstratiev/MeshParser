@@ -2,6 +2,7 @@
 #define CBVH_NODE_H
 
 #include <unordered_set>
+
 #include "DCEL/DCEL_Datatypes.h"
 #include "BVH_Datatypes.h"
 #include "BoundingBox.h"

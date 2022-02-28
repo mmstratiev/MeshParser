@@ -27,8 +27,8 @@ SOURCES += \
     MeshSubdivider.cpp \
     OpenGL/Camera3D.cpp \
     OpenGL/InputManager.cpp \
+    OpenGL/OpenGLVertex.cpp \
     OpenGL/OpenGLWidget.cpp \
-    OpenGL/Vertex.cpp \
     UI/DlgVertexNormals.cpp \
     UI/mainwindow.cpp \
     main.cpp \
@@ -56,8 +56,8 @@ HEADERS += \
     MeshSubdivider.h \
     OpenGL/Camera3D.h \
     OpenGL/InputManager.h \
+    OpenGL/OpenGLVertex.h \
     OpenGL/OpenGLWidget.h \
-    OpenGL/Vertex.h \
     UI/DlgVertexNormals.h \
     UI/mainwindow.h \
 
