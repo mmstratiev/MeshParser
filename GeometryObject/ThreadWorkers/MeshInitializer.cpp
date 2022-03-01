@@ -1,24 +1,9 @@
 #include "MeshInitializer.h"
 
-#include <QThread>
-#include <QMutexLocker>
-#include <QDebug>
-#include <QQuaternion>
-
-CMeshInitializer::CMeshInitializer(CGeometryObject& inOutObject, const QJsonObject& jsonDataObject, qsizetype beginIndex, qsizetype endIndex, QObject *parent)
-	: QObject{parent}
-	, GeometryObject(inOutObject)
+CMeshInitializer::CMeshInitializer(CGeometryObject& inOutObject, const QJsonObject& jsonDataObject, QObject *parent)
+	: CThreadWorker(inOutObject, parent)
 	, DataObject(jsonDataObject)
-	, BeginIndex(beginIndex)
-	, EndIndex(endIndex)
 {}
-
-void CMeshInitializer::run()
-{
-	this->Work();
-	emit Finished();
-	QThread::currentThread()->msleep(25);
-}
 
 void CMeshInitializer::Work()
 {

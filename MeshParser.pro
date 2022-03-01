@@ -24,6 +24,7 @@ SOURCES += \
     GeometryObject/ThreadWorkers/MeshAnalyzer.cpp \
     GeometryObject/ThreadWorkers/MeshInitializer.cpp \
     GeometryObject/ThreadWorkers/MeshSubdivider.cpp \
+    GeometryObject/ThreadWorkers/ThreadWorker.cpp \
     Math/Triangle.cpp \
     OpenGL/Camera3D.cpp \
     OpenGL/InputManager.cpp \
@@ -51,6 +52,7 @@ HEADERS += \
     GeometryObject/ThreadWorkers/MeshAnalyzer.h \
     GeometryObject/ThreadWorkers/MeshInitializer.h \
     GeometryObject/ThreadWorkers/MeshSubdivider.h \
+    GeometryObject/ThreadWorkers/ThreadWorker.h \
     Math/Shapes.h \
     Math/Triangle.h \
     OpenGL/Camera3D.h \

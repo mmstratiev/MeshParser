@@ -1,25 +1,15 @@
 #ifndef MESHINITIALIZER_H
 #define MESHINITIALIZER_H
 
-#include <QObject>
-#include <QRunnable>
+#include "ThreadWorker.h"
 
-#include "GeometryObject/GeometryObject.h"
-
-class CMeshInitializer : public QObject, public QRunnable
+class CMeshInitializer : public CThreadWorker
 {
     Q_OBJECT
 public:
-	explicit CMeshInitializer(CGeometryObject& inOutObject, const QJsonObject& jsonDataObject, qsizetype beginIndex, qsizetype endIndex, QObject *parent = nullptr);
+	explicit CMeshInitializer(CGeometryObject& inOutObject, const QJsonObject& jsonDataObject, QObject *parent = nullptr);
 
-signals:
-	void Finished();
-	void MadeProgress();
-
-	// QRunnable interface
 public:
-	void run() Q_DECL_OVERRIDE;
-
 	static QJsonObject	GetRawData(const QJsonObject& jsonDataObject);
 	static QJsonObject	GetRawObject(const QJsonObject& jsonDataObject);
 
@@ -33,14 +23,12 @@ public:
 	static CTriangle	GetTriangleRaw(const QJsonObject& jsonDataObject, qsizetype triangleIndex);
 	static qsizetype	GetTriangleVertexIndexRaw(const QJsonObject& jsonDataObject, qsizetype triangleIndex, qsizetype vertexNum);
 
-private:
-	void Work();
+protected:
+	void Work() override;
 
 private:
-	CGeometryObject&		GeometryObject;
 	QJsonObject				DataObject;
-	qsizetype				BeginIndex	= 0;
-	qsizetype				EndIndex	= 0;
+
 };
 
 #endif // MESHINITIALIZER_H

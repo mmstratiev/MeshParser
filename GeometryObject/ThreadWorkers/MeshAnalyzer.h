@@ -1,32 +1,16 @@
 #ifndef MESHANALYZER_H
 #define MESHANALYZER_H
 
-#include <QObject>
-#include <QRunnable>
+#include "ThreadWorker.h"
 
-#include "GeometryObject/GeometryObject.h"
-
-class CMeshAnalyzer : public QObject, public QRunnable
+class CMeshAnalyzer : public CThreadWorker
 {
     Q_OBJECT
 public:
-	explicit CMeshAnalyzer(CGeometryObject& inOutObject, qsizetype beginIndex, qsizetype endIndex, QObject *parent = nullptr);
+	explicit CMeshAnalyzer(CGeometryObject& inOutObject, QObject *parent = nullptr);
 
-signals:
-	void Finished();
-	void MadeProgress();
-
-	// QRunnable interface
-public:
-	void run() Q_DECL_OVERRIDE;
-
-private:
-	void Work();
-
-private:
-	CGeometryObject&		GeometryObject;
-	qsizetype				BeginIndex	= 0;
-	qsizetype				EndIndex	= 0;
+protected:
+	void Work() override;
 
 };
 

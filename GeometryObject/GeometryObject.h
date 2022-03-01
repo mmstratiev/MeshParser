@@ -89,6 +89,8 @@ private:
 	void		Initialize(const QByteArray &rawData);
 	void		Analyze();
 
+	void		StartThreads(qsizetype trianglesCount, std::function<class CThreadWorker*(qsizetype workerIndex)> getThreadWorker);
+
 	void		ClearInitializedData();
 	void		ClearAnalyzedData();
 
@@ -114,7 +116,7 @@ private:
 	bool			bIsClosed		= true;
 
 	QMutex					Mutex;
-	QSet<class QObject*>	Workers;
+	qsizetype				WorkersCount;
 
 	// Temp values which are used to share information between threads
 	std::unordered_map<TDCEL_EdgeID, TDCEL_VertID, TDCEL_EdgeID> TempEdgeToNewVert;

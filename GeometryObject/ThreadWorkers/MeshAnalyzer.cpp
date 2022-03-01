@@ -1,17 +1,9 @@
 #include "MeshAnalyzer.h"
 
-#include <QThread>
-#include <QMutexLocker>
 #include <QQuaternion>
 
-#include "DCEL/DCEL_Edge.h"
-#include "DCEL/DCEL_Face.h"
-
-CMeshAnalyzer::CMeshAnalyzer(CGeometryObject& inOutObject, qsizetype beginIndex, qsizetype endIndex, QObject *parent)
-	: QObject{parent}
-	, GeometryObject(inOutObject)
-	, BeginIndex(beginIndex)
-	, EndIndex(endIndex)
+CMeshAnalyzer::CMeshAnalyzer(CGeometryObject& inOutObject, QObject *parent)
+	: CThreadWorker(inOutObject, parent)
 {}
 
 void CMeshAnalyzer::Work()
@@ -65,11 +57,4 @@ void CMeshAnalyzer::Work()
 		}
 		emit MadeProgress();
 	}
-}
-
-void CMeshAnalyzer::run()
-{
-	this->Work();
-	emit Finished();
-	QThread::currentThread()->msleep(25);
 }

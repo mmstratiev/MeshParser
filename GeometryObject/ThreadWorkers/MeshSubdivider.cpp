@@ -1,20 +1,9 @@
 #include "MeshSubdivider.h"
-#include <QThread>
 
-CMeshSubdivider::CMeshSubdivider(CGeometryObject &inOutObject, ESubdivisionAlgorithm algo, qsizetype beginIndex, qsizetype endIndex, QObject *parent)
-	: QObject{parent}
-	, GeometryObject(inOutObject)
+CMeshSubdivider::CMeshSubdivider(CGeometryObject &inOutObject, ESubdivisionAlgorithm algo, QObject *parent)
+	: CThreadWorker(inOutObject, parent)
 	, Algo(algo)
-	, BeginIndex(beginIndex)
-	, EndIndex(endIndex)
 {}
-
-void CMeshSubdivider::run()
-{
-	this->Work();
-	emit Finished();
-	QThread::currentThread()->msleep(25);
-}
 
 void CMeshSubdivider::Work()
 {
@@ -81,7 +70,6 @@ void CMeshSubdivider::Work()
 		TDCEL_VertID innerVertID1 = GeometryObject.TempEdgeToNewVert.find((*edgeIt)->GetID())->second;
 		TDCEL_VertID innerVertID2 = GeometryObject.TempEdgeToNewVert.find((*edgeIt)->Next()->GetID())->second;
 		TDCEL_VertID innerVertID3 = GeometryObject.TempEdgeToNewVert.find((*edgeIt)->Prev()->GetID())->second;
-
 
 		Destination.Connect(innerVertID1, innerVertID2, innerVertID3);
 		GeometryObject.TempProgress++;
